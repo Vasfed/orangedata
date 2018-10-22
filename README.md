@@ -28,7 +28,7 @@ gem 'orangedata'
 
 ## Использование
 
-Для тестового окружения ключики в комплекте - [credentials_test.yml](lib/credentials_test.yml), собрано из родного `File_for_test.zip`, доступны как `OrangeData::Credentials.default_test`
+Для тестового окружения ключики в комплекте - [credentials_test.yml](lib/orange_data/credentials_test.yml), собрано из родного `File_for_test.zip`, доступны как `OrangeData::Credentials.default_test`
 
 ```ruby
   transport = OrangeData::Transport.new("https://apip.orangedata.ru:2443/api/v2/", OrangeData::Credentials.default_test)
