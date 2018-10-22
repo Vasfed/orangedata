@@ -1,0 +1,134 @@
+# frozen_string_literal: true
+
+require 'openssl'
+require 'base64'
+require 'faraday'
+require 'faraday_middleware'
+
+# handles low-level http requests to orangedata, including auth
+module OrangeData
+  class Transport
+
+    def initialize api_url=default_api_url, credentials=Credentials.default_test
+      raise ArgumentError, "Need full credentials for connection" unless credentials.valid?
+      @credentials = credentials
+      @api_url = api_url
+    end
+
+    def default_api_url
+      # production: https://api.orangedata.ru:12003/api/v2/
+      # test: https://apip.orangedata.ru:2443/api/v2/
+      "https://apip.orangedata.ru:2443/api/v2/"
+    end
+
+    class RequestSignatureMiddleware < Faraday::Middleware
+      def initialize(app, signature_key)
+        @app = app
+        @signature_key = signature_key
+      end
+
+      def call(env)
+        if env.body
+          signature = @signature_key.sign(OpenSSL::Digest::SHA256.new, env.body)
+          env.request_headers['X-Signature'] = Base64.strict_encode64(signature)
+        end
+        @app.call(env)
+      end
+    end
+
+    def transport
+      @transport ||= Faraday.new(
+        url: @api_url,
+        ssl: {
+          client_cert: @credentials.certificate,
+          client_key: @credentials.certificate_key,
+        }
+      ) do |conn|
+        conn.headers['User-Agent'] = "OrangeDataRuby/#{OrangeData::VERSION}"
+        conn.headers['Accept'] = "application/json"
+        conn.request(:json)
+        conn.use(RequestSignatureMiddleware, @credentials.signature_key)
+        conn.response :json, content_type: /\bjson$/
+        conn.adapter(Faraday.default_adapter)
+      end
+    end
+
+    def raw_post method, data
+      transport.post(method, data)
+    end
+
+    def post_entity sub_url, data
+      res = raw_post(sub_url, data)
+
+      case res.status
+      when 201
+        return true
+      when 401
+        raise 'Unauthorized'
+      when 409
+        raise "Conflict"
+      when 400
+        raise "Invalid doc: #{res.body}"
+      else
+        raise "Unknown code from OD: #{res.status} #{res.reason_phrase} #{res.body}"
+      end
+    end
+
+    def get_entity sub_url
+      res = transport.get(sub_url)
+
+      case res.status
+      when 200
+        return res.body
+      when 400
+        raise "Cannot get doc: #{res.body}"
+      when 401
+        raise 'Unauthorized'
+      end
+    end
+
+    # Below actual methods from api
+
+    def ping
+      res = transport.get(''){|r|
+        r.headers['Accept'] = 'text/plain'
+      }
+
+      return res.status == 200 && res.body == "Nebula.Api v2"
+    rescue StandardError => e
+      return false
+    end
+
+    def post_document_validate data
+      res = raw_post 'validateDocument', data
+
+      case res.status
+      when 200
+        return true
+      when 400
+        return res.body
+      when 401
+        raise 'Unauthorized'
+      else
+        raise "Unexpected response: #{res.status} #{res.reason_phrase}"
+      end
+    end
+
+    def post_document data
+      post_entity 'documents', data
+    end
+
+    def get_document inn, document_id
+      get_entity "documents/#{inn}/status/#{document_id}"
+    end
+
+    def post_correction data
+      post_entity 'corrections', data
+    end
+
+    def get_correction inn, document_id
+      get_entity "corrections/#{inn}/status/#{document_id}"
+    end
+
+  end
+end
