@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "orange_data"
+require "irb"
+
+using OrangeData::Credentials::KeyEncoding
+IRB.start(__FILE__)
