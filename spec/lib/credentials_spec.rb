@@ -5,33 +5,31 @@ RSpec.describe 'OrangeData::Credentials' do
   describe 'KeyEncoding for RSA key' do
     using OrangeData::Credentials::KeyEncoding
 
-    let(:pem){
+    let(:pem) do
       <<~PEM
-      -----BEGIN RSA PRIVATE KEY-----
-      MC4CAQACBQDwgCIlAgMBAAECBQDP+/NJAgMA/PsCAwDzXwICShkCAwC5NwIDAOki
-      -----END RSA PRIVATE KEY-----
+        -----BEGIN RSA PRIVATE KEY-----
+        MC4CAQACBQDwgCIlAgMBAAECBQDP+/NJAgMA/PsCAwDzXwICShkCAwC5NwIDAOki
+        -----END RSA PRIVATE KEY-----
       PEM
-    }
-    let(:private_xml){
+    end
+    let(:private_xml) do
       <<~XML
-      <RSAKeyValue>
-        <Modulus>8IAiJQ==</Modulus><Exponent>AQAB</Exponent>
-        <P>/Ps=</P><Q>818=</Q><DP>Shk=</DP><DQ>uTc=</DQ>
-        <InverseQ>6SI=</InverseQ><D>z/vzSQ==</D>
-      </RSAKeyValue>
+        <RSAKeyValue>
+          <Modulus>8IAiJQ==</Modulus><Exponent>AQAB</Exponent>
+          <P>/Ps=</P><Q>818=</Q><DP>Shk=</DP><DQ>uTc=</DQ>
+          <InverseQ>6SI=</InverseQ><D>z/vzSQ==</D>
+        </RSAKeyValue>
       XML
-    }
-    let(:public_xml){
-      "<RSAKeyValue><Modulus>8IAiJQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
-    }
+    end
+    let(:public_xml){ "<RSAKeyValue><Modulus>8IAiJQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>" }
     let(:key){ OpenSSL::PKey::RSA.new pem }
 
     it "to_hash" do
-      expect(key.to_hash).to eq({
+      expect(key.to_hash).to eq(
         "n"=>"8IAiJQ==", "e"=>"AQAB",
         "d"=>"z/vzSQ==", "p"=>"/Ps=", "q"=>"818=", "dmp1"=>"Shk=", "dmq1"=>"uTc=", "iqmp"=>"6SI="
-        })
-      expect(key.public_key.to_hash).to eq({"n"=>"8IAiJQ==", "e"=>"AQAB"})
+      )
+      expect(key.public_key.to_hash).to eq("n"=>"8IAiJQ==", "e"=>"AQAB")
     end
 
     it "to_xml" do

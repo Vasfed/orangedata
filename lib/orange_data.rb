@@ -4,8 +4,8 @@ require "orange_data/version"
 require "orange_data/credentials"
 require "orange_data/transport"
 
+# top-level namespace
 module OrangeData
-
 
   # QR:  t=20180518T220500&s=975.88&fn=8710000101125654&i=99456&fp=1250448795&n=1
   #

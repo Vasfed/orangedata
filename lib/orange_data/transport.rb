@@ -5,22 +5,20 @@ require 'base64'
 require 'faraday'
 require 'faraday_middleware'
 
-# handles low-level http requests to orangedata, including auth
 module OrangeData
+  # handles low-level http requests to orangedata, including auth
   class Transport
 
-    def initialize api_url=default_api_url, credentials=Credentials.default_test
+    DEFAULT_TEST_API_URL = "https://apip.orangedata.ru:2443/api/v2/"
+    DEFAULT_PRODUCTION_API_URL = "https://api.orangedata.ru:12003/api/v2/"
+
+    def initialize(api_url=DEFAULT_TEST_API_URL, credentials=Credentials.default_test)
       raise ArgumentError, "Need full credentials for connection" unless credentials.valid?
       @credentials = credentials
       @api_url = api_url
     end
 
-    def default_api_url
-      # production: https://api.orangedata.ru:12003/api/v2/
-      # test: https://apip.orangedata.ru:2443/api/v2/
-      "https://apip.orangedata.ru:2443/api/v2/"
-    end
-
+    # middleware for request signatures
     class RequestSignatureMiddleware < Faraday::Middleware
       def initialize(app, signature_key)
         @app = app
@@ -53,11 +51,11 @@ module OrangeData
       end
     end
 
-    def raw_post method, data
+    def raw_post(method, data)
       transport.post(method, data)
     end
 
-    def post_entity sub_url, data
+    def post_entity(sub_url, data)
       res = raw_post(sub_url, data)
 
       case res.status
@@ -74,7 +72,7 @@ module OrangeData
       end
     end
 
-    def get_entity sub_url
+    def get_entity(sub_url)
       res = transport.get(sub_url)
 
       case res.status
@@ -90,16 +88,13 @@ module OrangeData
     # Below actual methods from api
 
     def ping
-      res = transport.get(''){|r|
-        r.headers['Accept'] = 'text/plain'
-      }
-
-      return res.status == 200 && res.body == "Nebula.Api v2"
-    rescue StandardError => e
+      res = transport.get(''){|r| r.headers['Accept'] = 'text/plain' }
+      res.status == 200 && res.body == "Nebula.Api v2"
+    rescue StandardError => _e
       return false
     end
 
-    def post_document_validate data
+    def post_document_validate(data)
       res = raw_post 'validateDocument', data
 
       case res.status
@@ -114,19 +109,19 @@ module OrangeData
       end
     end
 
-    def post_document data
+    def post_document(data)
       post_entity 'documents', data
     end
 
-    def get_document inn, document_id
+    def get_document(inn, document_id)
       get_entity "documents/#{inn}/status/#{document_id}"
     end
 
-    def post_correction data
+    def post_correction(data)
       post_entity 'corrections', data
     end
 
-    def get_correction inn, document_id
+    def get_correction(inn, document_id)
       get_entity "corrections/#{inn}/status/#{document_id}"
     end
 

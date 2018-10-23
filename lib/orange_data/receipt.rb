@@ -2,22 +2,27 @@
 
 module OrangeData
 
+  # main class for receipt
   class Receipt
+
     attr_accessor :id, :inn, :group, :key_name
 
-    def initialize id:SecureRandom.uuid, inn:, group:nil, key_name:nil
+    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil)
       @id = id
       @inn = inn
       @group = group
       @key_name = key_name
       yield self if block_given?
     end
+
   end
 
+  # nodoc
   class ReceiptContent
 
+    # for agent type bit mask
     module AgentTypeSerializer
-      AGENT_TYPE_BITS = {         # 1057 (в чеках/БСО должно соответствовать отчету о (пере)регистрации ККТ)
+      AGENT_TYPE_BITS = { # 1057 (в чеках/БСО должно соответствовать отчету о (пере)регистрации ККТ)
         bank_payment_agent:    (1 << 0), # банковский платежный агент
         bank_payment_subagent: (1 << 1), # банковский платежный субагент
         payment_agent:         (1 << 2), # платежный агент
@@ -27,19 +32,18 @@ module OrangeData
         other_agent:           (1 << 6), # иной агент
       }.freeze
 
-      def self.load data
+      def self.load(data)
         data = data.to_i
-        AGENT_TYPE_BITS.select{|(k,v)| (data & v) > 0}.map(&:first)
+        AGENT_TYPE_BITS.reject{|(_, v)| (data & v).zero? }.map(&:first)
       end
 
-      def self.dump val
+      def self.dump(val)
         val = [val] unless val.is_a?(Array)
-        val.map{|v| AGENT_TYPE_BITS[v] || raise "unknown agent_type #{v}"}.reduce(:|)
+        val.map{|v| AGENT_TYPE_BITS[v] || raise("unknown agent_type #{v}") }.reduce(:|)
       end
     end
 
-
-    RECEIPT_TYPES = {        # 1054:
+    RECEIPT_TYPES = { # 1054:
 
     }.freeze
 
@@ -55,11 +59,9 @@ module OrangeData
           return_expense: 4 # Возврат расхода
         }
       }
-    }
+    }.freeze
 
-
-
-    def initialize type
+    def initialize(_type)
       @positions = []
       @payments = []
     end
@@ -68,7 +70,7 @@ module OrangeData
       AgentTypeSerializer.load(@agent_type)
     end
 
-    def agent_type= val
+    def agent_type=(val)
       @agent_type = AgentTypeSerializer.dump(val)
     end
 

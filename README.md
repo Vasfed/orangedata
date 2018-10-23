@@ -88,13 +88,12 @@ gem 'orangedata'
 Генерируем себе приватный ключ:
 
 ```ruby
-  require 'yaml'
   c = OrangeData::Credentials.new title:'My production'
   c.generate_signature_key!(2048) # параметр - длина ключа
   #=> возвращает публичный ключ в том виде, который хочет ЛК OrangeData:
   # "<RSAKeyValue><Modulus>(многабукв)==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
 
-  File.open("my_production.yml", "wt"){|f| f.write YAML.dump(c.to_hash) }
+  File.open("my_production.yml", "wt"){|f| f.write c.to_yaml }
   # (на выходе - yml с приватным ключом и паролем к нему, который надо сохранить и беречь)
 
   # повторно взять публичный ключ можно так:

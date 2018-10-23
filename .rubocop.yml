@@ -1,0 +1,71 @@
+AllCops:
+  # DefaultFormatter: fuubar
+  # TargetRubyVersion: 2.1
+  TargetRubyVersion: 2.3
+  Exclude:
+    - 'spec/fixtures/**/*'
+    - 'tmp/**/*'
+
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 120
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/MethodLength:
+  Max: 20
+
+Metrics/AbcSize:
+  Max: 50
+
+Metrics/CyclomaticComplexity:
+  Max: 50
+
+Metrics/PerceivedComplexity:
+  Max: 50
+
+Style/StringLiterals:
+  Enabled: false
+  # EnforcedStyle: double_quotes
+
+Style/RedundantReturn:
+  Enabled: false
+
+Layout/SpaceBeforeBlockBraces:
+  EnforcedStyle: no_space
+
+Layout/SpaceAroundEqualsInParameterDefault:
+  EnforcedStyle: no_space
+
+Layout/SpaceAfterColon:
+  Enabled: false
+
+Layout/SpaceAroundOperators:
+  Enabled: false
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+
+Layout/SpaceInsideBlockBraces:
+  SpaceBeforeBlockParameters: false
+
+Layout/EmptyLinesAroundBlockBody:
+  Exclude:
+    - 'spec/**/*'
+
+Layout/EmptyLinesAroundModuleBody:
+  Enabled: false
+  # EnforcedStyle: empty_lines_except_namespace
+Layout/EmptyLinesAroundClassBody:
+  Enabled: false
+  # EnforcedStyle: empty_lines_except_namespace
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/TrailingCommaInHashLiteral:
+  Enabled: false
