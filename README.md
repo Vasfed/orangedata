@@ -102,7 +102,7 @@ gem 'orangedata'
 Дальше публичный ключ с предыдущего шага отправляется в ЛК, там его сохряняем, "подключаем интеграцию", и пользуемся:
 
 ```ruby
-  transport = OrangeData::Transport.new(OrangeData::Transport::DEFAULT_PRODUCTION_API_URL, OrangeData::Credentials.from_hash(YAML.load('my_production.yml')))
+  transport = OrangeData::Transport.new(OrangeData::Transport::DEFAULT_PRODUCTION_API_URL, OrangeData::Credentials.from_hash(YAML.load_file('my_production.yml')))
   transport.post_document # и далее по тексту, осторожно - не пробейте лишние чеки во время проверок
 ```
 
