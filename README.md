@@ -1,5 +1,7 @@
 # Orangedata Client
 
+[![Gem Version](https://badge.fury.io/rb/orangedata.svg)](https://badge.fury.io/rb/orangedata)
+
 A ruby client for orangedata.ru service.
 Target service is pretty local to RU, so parts of readme will be in russian.
 
