@@ -86,26 +86,25 @@ gem 'orangedata'
 Предполагается, что всякие договоры и прочая фискализация уже успешно пройдена и у вас есть доступ
 к ЛК orangedata.
 
-Генерируем себе приватный ключ:
+В [ЛК в разделе интеграций](https://lk.orangedata.ru/lk/integrations/direct) запрашиваем сертификат (шаг 3, первый шаг не нужен, а данные для второго получатся ниже), распаковываем полученный zip-архив и натравливаем туда генератор:
 
 ```ruby
-  c = OrangeData::Credentials.new title:'My production'
-  c.generate_signature_key!(2048) # параметр - длина ключа
-  #=> возвращает публичный ключ в том виде, который хочет ЛК OrangeData:
-  # "<RSAKeyValue><Modulus>(многабукв)==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
-
+  c = OrangeData::Credentials.read_certs_from_pack('~/Downloads/1234567890', title:'My production', cert_key_pass:'1234') # cert_key_pass берем из readme_v2.txt, но есть подозрение что он у всех 1234
+  # Generated public signature key: <RSAKeyValue>...</Exponent></RSAKeyValue>
   File.open("my_production.yml", "wt"){|f| f.write c.to_yaml }
-  # (на выходе - yml с приватным ключом и паролем к нему, который надо сохранить и беречь)
 
-  # повторно взять публичный ключ можно так:
-  credentials = OrangeData::Credentials.from_hash(YAML.load_file('my_production.yml'))
-  credentials.signature_public_xml
+  # опционально на маке копируем публичный ключ в буфер обмена:
+  system("echo '#{c.signature_public_xml}' | pbcopy")
 ```
 
-После чего публичный ключ (xml c `RSAKeyValue`) кормим в ЛК. Значение поля `Название ключа` с этого шага отправляется в `signature_key_name`.
-Далее там выпускаем себе сертификаты и из полученного архива вставляем содержимое `<ИНН>.crt` и `<ИНН>.key`(сертификат и ключ к нему) в yml-файлик аналогично примеру.
-
 Если все прошло гладко - теперь у вас есть файлик `my_production.yml` со всеми реквизитами доступа к продакшн-кассе. Обращаться с ним стоит как и с любой другой очень чувствительной информацией, например не стоит коммитить его (ну или как минимум, убрать из него поля `signature_key_pass` и `certificate_key_pass` и хранить отдельно)
+
+Дальше публичный ключ с предыдущего шага отправляется в ЛК, там его сохряняем, "подключаем интеграцию", и пользуемся:
+
+```ruby
+  transport = OrangeData::Transport.new(OrangeData::Transport::DEFAULT_PRODUCTION_API_URL, OrangeData::Credentials.from_hash(YAML.load('my_production.yml')))
+  transport.post_document # и далее по тексту, осторожно - не пробейте лишние чеки во время проверок
+```
 
 ## Разработка
 

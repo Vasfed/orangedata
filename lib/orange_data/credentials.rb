@@ -78,9 +78,11 @@ module OrangeData
     def self.from_hash(creds)
       key = nil
       if creds[:signature_key]
-        key = if creds[:signature_key].is_a?(Hash)
+        key = if creds[:signature_key].is_a?(OpenSSL::PKey::RSA)
+          creds[:signature_key]
+        elsif creds[:signature_key].is_a?(Hash)
           OpenSSL::PKey::RSA.from_hash(creds[:signature_key])
-        elsif creds[:signature_key].start_with?('<')
+        elsif creds[:signature_key].is_a?(String) && creds[:signature_key].start_with?('<')
           OpenSSL::PKey::RSA.from_xml(creds[:signature_key])
         else
           OpenSSL::PKey::RSA.new(creds[:signature_key], creds[:signature_key_pass])
@@ -139,7 +141,7 @@ module OrangeData
       }
 
       if certificate && (subject_name = certificate.subject.to_a.select{|ent| ent.first == 'O' }.first)
-        info_fields[:certificate] = subject_name.last.inspect
+        info_fields[:certificate] = %Q("#{(subject_name[1] || 'unknown').gsub('"', '\"')}")
       end
 
       "#<#{self.class.name}:#{object_id} #{info_fields.map{|(k, v)| "#{k}=#{v}" }.join(' ')}>"
@@ -147,7 +149,32 @@ module OrangeData
 
     def generate_signature_key!(key_length=2048)
       self.signature_key = OpenSSL::PKey::RSA.new(key_length)
-      signature_public_xml
+    end
+
+    def self.read_certs_from_pack(path, signature_key_name:nil, cert_key_pass:nil, title:nil)
+      path = File.expand_path(path)
+      client_cert = Dir.glob(path + '/*.{crt}').select{|f| File.file?(f.sub(/.crt\z/, '.key'))}
+      raise 'Expect to find exactly one <num>.crt with corresponding <num>.key file' unless client_cert.size == 1
+      client_cert = client_cert.first
+
+      # private_key_test.xml || rsa_\d+_private_key.xml
+      xmls = Dir.glob(path + '/*.{xml}').select{|f| f =~ /private/}
+      signature_key = if xmls.size == 1
+        File.read(xmls.first)
+      else
+        OpenSSL::PKey::RSA.new(2048).tap{|k|
+          puts "Generated public signature key: #{k.public_key.to_xml}"
+        }
+      end
+
+      from_hash(
+        title: title || "Generated from #{File.basename(path)}",
+        signature_key_name: signature_key_name || File.basename(client_cert).gsub(/\..*/, ''),
+        certificate: File.read(client_cert),
+        certificate_key: File.read(client_cert.sub(/.crt\z/, '.key')),
+        certificate_key_pass: cert_key_pass,
+        signature_key: signature_key,
+      )
     end
 
     # публичная часть ключа подписи в формате пригодном для отдачи в ЛК
