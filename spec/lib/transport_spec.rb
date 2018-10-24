@@ -86,9 +86,10 @@ RSpec.describe OrangeData::Transport do
     subject{ transport.post_document document }
     let(:resp_status){ 201 }
     let(:resp_body){ nil }
+    let(:resp_headers){ { 'Content-type' => 'application/json' } }
     before do
       stub_request(:post, "#{api_root}documents").
-        with(body: "{\"some\":\"data\"}").to_return(status: resp_status, body: resp_body&.to_json, headers: { 'Content-type' => 'application/json' })
+        with(body: "{\"some\":\"data\"}").to_return(status: resp_status, body: resp_body&.to_json, headers: resp_headers)
     end
 
     it{ is_expected.to be_truthy }
@@ -102,6 +103,14 @@ RSpec.describe OrangeData::Transport do
       let(:resp_status){ 400 }
       let(:resp_body){ { errors: ["blablabla"]} }
       it{ expect{ subject }.to raise_error(/blablabla/) }
+    end
+
+    context "when queue full" do
+      let(:resp_status){ 503 }
+      let(:resp_headers){ { 'Content-type' => 'application/json', 'Retry-After' => 5 } }
+      it{
+        expect{ subject }.to raise_error(/Retry/i)
+      }
     end
 
     context "when other error on server" do
@@ -119,6 +128,8 @@ RSpec.describe OrangeData::Transport do
         with(body: "{\"some\":\"data\"}").to_return(status: 201)
       is_expected.to be_truthy
     end
+
+    # shares inplementation with post_document, so no need to test separately
   end
 
   describe "get document" do
@@ -131,7 +142,10 @@ RSpec.describe OrangeData::Transport do
       stub_request(:get, "#{api_root}documents/123/status/456").
         to_return(status: resp_status, body: resp_body.to_json, headers: { 'Content-type' => 'application/json' })
     end
-    it { is_expected.to eq('some' => 'resp') }
+    it do
+      is_expected.to be_a(OrangeData::ReceiptResult)
+      expect(subject.some).to eq('resp')
+    end
 
     context "when error" do
       let(:resp_status){ 400 }; let(:resp_body){ { errors:["somefailhere"]} }

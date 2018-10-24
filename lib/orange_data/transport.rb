@@ -74,9 +74,12 @@ module OrangeData
         raise "Conflict"
       when 400
         raise "Invalid doc: #{res.body["errors"] || res.body}"
-      else
-        raise "Unknown code from OD: #{res.status} #{res.reason_phrase} #{res.body}"
+      when 503
+        if res.headers['Retry-After']
+          raise "Document queue full, retry in #{res.headers['Retry-After']}"
+        end
       end
+      raise "Unknown code from OD: #{res.status} #{res.reason_phrase} #{res.body}"
     end
 
     def get_entity(sub_url)
@@ -119,7 +122,7 @@ module OrangeData
     end
 
     def get_document(inn, document_id)
-      get_entity "documents/#{inn}/status/#{document_id}"
+      ReceiptResult.from_hash(get_entity("documents/#{inn}/status/#{document_id}"))
     end
 
     def post_correction(data)
