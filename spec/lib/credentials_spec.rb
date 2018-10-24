@@ -55,8 +55,17 @@ RSpec.describe OrangeData::Credentials do
     end
   end
 
-  it "has default_test credentials" do
-    expect(described_class.default_test).to be_a(described_class).and(be_valid)
+  describe "default credentials" do
+    subject{ described_class.default_test }
+
+    it "are present and generated from original" do
+      is_expected.to be_a(described_class).and(be_valid)
+
+      cr = described_class.read_certs_from_pack("#{fixtures_path}/cert_test_pack", cert_key_pass:'1234')
+      cr.title = subject.title # ignore title
+      cr.signature_key_name = subject.signature_key_name # also ignore
+      expect(cr).to eq(described_class.default_test)
+    end
   end
 
 end
