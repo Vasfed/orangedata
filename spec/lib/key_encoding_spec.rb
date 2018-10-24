@@ -1,6 +1,6 @@
 RSpec.describe 'KeyEncoding for RSA key' do
   using OrangeData::Credentials::KeyEncoding
-
+  let(:described_class){ OpenSSL::PKey::RSA }
   let(:pem) do
     <<~PEM
       -----BEGIN RSA PRIVATE KEY-----
@@ -61,5 +61,31 @@ RSpec.describe 'KeyEncoding for RSA key' do
         </Exponent>
       </RSAKeyValue>
     XML
+  end
+
+  describe "load_from" do
+    it "from key" do
+      expect(described_class.load_from(key).to_s).to eq(pem)
+    end
+
+    it "from pem" do
+      expect(described_class.load_from(pem).to_s).to eq(pem)
+    end
+
+    it "from hash" do
+      expect(described_class.load_from(key.to_hash).to_s).to eq(pem)
+    end
+
+    it "from xml" do
+      expect(described_class.load_from(private_xml).to_s).to eq(pem)
+    end
+
+    it "from nil" do
+      expect(described_class.load_from(nil)).to be_nil
+    end
+
+    it "from unknown" do
+      expect{ described_class.load_from(123) }.to raise_error(ArgumentError)
+    end
   end
 end

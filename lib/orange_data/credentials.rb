@@ -51,6 +51,25 @@ module OrangeData
             end
           end
         end
+
+        def load_from(val, key_pass=nil)
+          return val unless val
+          case val
+          when self
+            val
+          when Hash
+            from_hash(val)
+          when String
+            if val.start_with?('<')
+              from_xml(val)
+            else
+              new(val, key_pass)
+            end
+          else
+            raise ArgumentError, "cannot load from #{val.class}"
+          end
+        end
+
       end
 
     end
@@ -88,25 +107,12 @@ module OrangeData
     end
 
     def self.from_hash(creds)
-      key = nil
-      if creds[:signature_key]
-        key = if creds[:signature_key].is_a?(OpenSSL::PKey::RSA)
-          creds[:signature_key]
-        elsif creds[:signature_key].is_a?(Hash)
-          OpenSSL::PKey::RSA.from_hash(creds[:signature_key])
-        elsif creds[:signature_key].is_a?(String) && creds[:signature_key].start_with?('<')
-          OpenSSL::PKey::RSA.from_xml(creds[:signature_key])
-        else
-          OpenSSL::PKey::RSA.new(creds[:signature_key], creds[:signature_key_pass])
-        end
-      end
       new(
+        title: creds[:title],
         signature_key_name: creds[:signature_key_name],
-        signature_key: key,
+        signature_key: OpenSSL::PKey::RSA.load_from(creds[:signature_key], creds[:signature_key_pass]),
         certificate: creds[:certificate] && OpenSSL::X509::Certificate.new(creds[:certificate]),
-        certificate_key: creds[:certificate_key] &&
-          OpenSSL::PKey::RSA.new(creds[:certificate_key], creds[:certificate_key_pass]),
-        title: creds[:title]
+        certificate_key: OpenSSL::PKey::RSA.load_from(creds[:certificate_key], creds[:certificate_key_pass]),
       )
     end
 
