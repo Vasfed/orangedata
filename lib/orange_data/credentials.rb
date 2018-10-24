@@ -72,7 +72,19 @@ module OrangeData
     def valid?
       signature_key_name &&
         signature_key && signature_key.private? &&
-        certificate && certificate_key && certificate_key.private?
+        (signature_key.n.num_bits >= 489) && # minimum working key length for sha256 signature
+        certificate && certificate_key &&
+        certificate_key.private? && certificate.check_private_key(certificate_key)
+    end
+
+    def ==(other)
+      return false unless %i[signature_key_name title].all?{|m| self.send(m) == other.send(m) }
+      # certificates/keys cannot be compared directly, so dump
+      %i[signature_key certificate certificate_key].all?{|m|
+        c1 = self.send(m)
+        c2 = other.send(m)
+        c1 == c2 || (c1 && c2 && c1.to_der == c2.to_der)
+      }
     end
 
     def self.from_hash(creds)
@@ -109,9 +121,9 @@ module OrangeData
       {
         title: title,
         signature_key_name: signature_key_name,
-        signature_key: signature_key && signature_key.to_pem(OpenSSL::Cipher.new("aes-128-cbc"), key_pass),
+        signature_key: signature_key && signature_key.to_pem(key_pass && OpenSSL::Cipher.new("aes-128-cbc"), key_pass),
         certificate: certificate && certificate.to_pem,
-        certificate_key: certificate_key && certificate_key.to_pem(OpenSSL::Cipher.new("aes-128-cbc"), key_pass),
+        certificate_key: certificate_key && certificate_key.to_pem(key_pass && OpenSSL::Cipher.new("aes-128-cbc"), key_pass),
       }.tap do |h|
         h.delete(:title) if !title || title == ''
         if save_pass
@@ -147,24 +159,33 @@ module OrangeData
       "#<#{self.class.name}:#{object_id} #{info_fields.map{|(k, v)| "#{k}=#{v}" }.join(' ')}>"
     end
 
-    def generate_signature_key!(key_length=2048)
-      self.signature_key = OpenSSL::PKey::RSA.new(key_length)
+    DEFAULT_KEY_LENGTH = 2048
+
+    #deprecated
+    def generate_signature_key!(key_length=DEFAULT_KEY_LENGTH)
+      self.signature_key = self.class.generate_signature_key(key_length)
     end
 
-    def self.read_certs_from_pack(path, signature_key_name:nil, cert_key_pass:nil, title:nil)
+    def self.generate_signature_key(key_length=DEFAULT_KEY_LENGTH)
+      raise ArgumentError, "key length should be >= 489, recomended #{DEFAULT_KEY_LENGTH}" unless key_length >= 489
+      OpenSSL::PKey::RSA.new(key_length)
+    end
+
+    def self.read_certs_from_pack(path, signature_key_name:nil, cert_key_pass:nil, title:nil, signature_key:nil)
       path = File.expand_path(path)
       client_cert = Dir.glob(path + '/*.{crt}').select{|f| File.file?(f.sub(/.crt\z/, '.key'))}
       raise 'Expect to find exactly one <num>.crt with corresponding <num>.key file' unless client_cert.size == 1
       client_cert = client_cert.first
 
-      # private_key_test.xml || rsa_\d+_private_key.xml
-      xmls = Dir.glob(path + '/*.{xml}').select{|f| f =~ /private/}
-      signature_key = if xmls.size == 1
-        File.read(xmls.first)
-      else
-        OpenSSL::PKey::RSA.new(2048).tap{|k|
-          puts "Generated public signature key: #{k.public_key.to_xml}"
-        }
+      unless signature_key
+        # private_key_test.xml || rsa_\d+_private_key.xml
+        xmls = Dir.glob(path + '/*.{xml}').select{|f| f =~ /private/}
+        signature_key = if xmls.size == 1
+          File.read(xmls.first)
+        else
+          generate_signature_key(DEFAULT_KEY_LENGTH)
+          # .tap{|k| logger.info("Generated public signature key: #{k.public_key.to_xml}") }
+        end
       end
 
       from_hash(

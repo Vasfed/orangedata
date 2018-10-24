@@ -1,71 +1,62 @@
 # frozen_string_literal: true
 
-RSpec.describe 'OrangeData::Credentials' do
+RSpec.describe OrangeData::Credentials do
 
-  describe 'KeyEncoding for RSA key' do
-    using OrangeData::Credentials::KeyEncoding
+  let(:fixtures_path){ File.expand_path('../fixtures', __dir__) }
+  let(:short_credentials_hash){ YAML.load_file("#{fixtures_path}/credentials_short.yml") }
 
-    let(:pem) do
-      <<~PEM
-        -----BEGIN RSA PRIVATE KEY-----
-        MC4CAQACBQDwgCIlAgMBAAECBQDP+/NJAgMA/PsCAwDzXwICShkCAwC5NwIDAOki
-        -----END RSA PRIVATE KEY-----
-      PEM
-    end
-    let(:private_xml) do
-      <<~XML
-        <RSAKeyValue>
-          <Modulus>8IAiJQ==</Modulus><Exponent>AQAB</Exponent>
-          <P>/Ps=</P><Q>818=</Q><DP>Shk=</DP><DQ>uTc=</DQ>
-          <InverseQ>6SI=</InverseQ><D>z/vzSQ==</D>
-        </RSAKeyValue>
-      XML
-    end
-    let(:public_xml){ "<RSAKeyValue><Modulus>8IAiJQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>" }
-    let(:key){ OpenSSL::PKey::RSA.new pem }
-
-    it "to_hash" do
-      expect(key.to_hash).to eq(
-        "n"=>"8IAiJQ==", "e"=>"AQAB",
-        "d"=>"z/vzSQ==", "p"=>"/Ps=", "q"=>"818=", "dmp1"=>"Shk=", "dmq1"=>"uTc=", "iqmp"=>"6SI="
-      )
-      expect(key.public_key.to_hash).to eq("n"=>"8IAiJQ==", "e"=>"AQAB")
+  describe "loading and inspect" do
+    subject{ described_class.from_hash(short_credentials_hash) }
+    it "load from_hash" do
+      is_expected.to be_valid
+      expect(subject.title).to eq 'Test minimal credentials'
+      expect(subject.signature_key_name).to eq '1234567890'
+      expect(subject.signature_key).to be_a(OpenSSL::PKey::RSA)
+      expect(subject.certificate).to be_a(OpenSSL::X509::Certificate)
+      expect(subject.certificate_key).to be_a(OpenSSL::PKey::RSA)
     end
 
-    it "to_xml" do
-      expect(key.to_xml).to eq private_xml.gsub(/\s+/, '')
-      expect(key.public_key.to_xml).to eq public_xml
+    it "load from folder" do
+      cr = described_class.read_certs_from_pack("#{fixtures_path}/cert_folder_123", cert_key_pass:'1234')
+      expect(cr).to be_a(described_class)
+      expect(cr).to be_valid
+      expect(cr.title).to eq 'Generated from cert_folder_123'
+      expect(cr.signature_key_name).to eq '1234567890'
+
+      expect(cr.certificate.to_pem).to eq(short_credentials_hash[:certificate])
+      expect(cr.certificate_key.to_pem).to eq(short_credentials_hash[:certificate_key])
+      expect(cr.signature_key).to be_a(OpenSSL::PKey::RSA)
+      expect(cr.signature_key).to be_private
+      expect(cr.signature_key.n.num_bits).to eq 2048
     end
 
-    it "from_hash" do
-      expect(OpenSSL::PKey::RSA.from_hash(key.to_hash).to_s).to eq(key.to_s)
-      expect(OpenSSL::PKey::RSA.from_hash(key.public_key.to_hash).to_s).to eq(key.public_key.to_s)
-      expect(OpenSSL::PKey::RSA.from_hash(n:"8IAiJQ==", e:"AQAB").to_s).to eq(key.public_key.to_s)
+    it "export to hash" do
+      expect(subject.to_hash(key_pass:false)).to eq short_credentials_hash
+      expect(subject.signature_public_xml).to eq '<RSAKeyValue><Modulus>6PA+veZ0WKLyB48DfrPyCbYYe9JNvbzoHckF3AlTLSsylVHjZu4ebWGBgNVtV52HZfOkYALPR5z0SLiq0DRL3Q==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>'
+      expect(subject.inspect).to match %r{#<OrangeData::Credentials:[0-9a-fx]+ title="Test minimal credentials" key_name="1234567890" certificate="Orangedata test client">}
     end
 
-    it "from_xml for private" do
-      expect(OpenSSL::PKey::RSA.from_xml(private_xml).to_s).to eq(pem)
+    it "to_yaml" do
+      expect(described_class.from_hash(YAML.load(subject.to_yaml))).to eq(subject)
     end
 
-    it "from_xml for public" do
-      expect(OpenSSL::PKey::RSA.from_xml(public_xml).to_s).to eq(key.public_key.to_s)
+    it "to_json" do
+      expect(described_class.from_json(subject.to_json)).to eq(subject)
     end
+  end
 
-    it "from_xml for spaced xml" do
-      expect(OpenSSL::PKey::RSA.from_xml(<<~XML).to_s).to eq(key.public_key.to_s)
-        <RSAKeyValue>
-          <Modulus>
-            8IA
-            iJQ
-            ==
-          </Modulus>
-          <Exponent>
-            AQ
-            AB
-          </Exponent>
-        </RSAKeyValue>
-      XML
+  describe "comparison" do
+    let(:one){ described_class.from_hash(short_credentials_hash) }
+    let(:other){ described_class.from_hash(short_credentials_hash) }
+    it "comparison - loaded from same data is equal" do
+      expect(one).to eq(other)
+      one.signature_key = nil
+      expect(one).not_to eq(other)
     end
+  end
+
+  it "has default_test credentials" do
+    expect(described_class.default_test).to be_a(described_class).and(be_valid)
   end
 
 end

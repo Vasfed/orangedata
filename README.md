@@ -90,8 +90,9 @@ gem 'orangedata'
 
 ```ruby
   c = OrangeData::Credentials.read_certs_from_pack('~/Downloads/1234567890', title:'My production', cert_key_pass:'1234') # cert_key_pass берем из readme_v2.txt, но есть подозрение что он у всех 1234
-  # Generated public signature key: <RSAKeyValue>...</Exponent></RSAKeyValue>
   File.open("my_production.yml", "wt"){|f| f.write c.to_yaml }
+  c.signature_public_xml
+  # "<RSAKeyValue>...</Exponent></RSAKeyValue>"
 
   # опционально на маке копируем публичный ключ в буфер обмена:
   system("echo '#{c.signature_public_xml}' | pbcopy")
