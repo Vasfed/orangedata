@@ -55,18 +55,25 @@ module OrangeData
       transport.post(method, data)
     end
 
+    def post_request(method, data)
+      raw_post(method, data).tap{|resp|
+        if resp.status == 401
+          # TODO: better exceptions
+          raise 'Unauthorized'
+        end
+      }
+    end
+
     def post_entity(sub_url, data)
-      res = raw_post(sub_url, data)
+      res = post_request(sub_url, data)
 
       case res.status
       when 201
         return true
-      when 401
-        raise 'Unauthorized'
       when 409
         raise "Conflict"
       when 400
-        raise "Invalid doc: #{res.body}"
+        raise "Invalid doc: #{res.body["errors"] || res.body}"
       else
         raise "Unknown code from OD: #{res.status} #{res.reason_phrase} #{res.body}"
       end
@@ -79,7 +86,7 @@ module OrangeData
       when 200
         return res.body
       when 400
-        raise "Cannot get doc: #{res.body}"
+        raise "Cannot get doc: #{res.body["errors"] || res.body}"
       when 401
         raise 'Unauthorized'
       end
@@ -95,15 +102,13 @@ module OrangeData
     end
 
     def post_document_validate(data)
-      res = raw_post 'validateDocument', data
+      res = post_request 'validateDocument', data
 
       case res.status
       when 200
         return true
       when 400
-        return res.body
-      when 401
-        raise 'Unauthorized'
+        return res.body["errors"]
       else
         raise "Unexpected response: #{res.status} #{res.reason_phrase}"
       end

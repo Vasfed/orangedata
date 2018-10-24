@@ -5,12 +5,13 @@ RSpec.describe OrangeData::Transport do
   let(:test_credentials) do
     OrangeData::Credentials.from_hash(YAML.load_file(File.expand_path('../fixtures/credentials_short.yml', __dir__)))
   end
-
-  subject{ OrangeData::Transport.new("https://apip.orangedata.ru:2443/api/v2/", test_credentials) }
+  let(:api_root){ "https://apip.orangedata.ru:2443/api/v2/" }
+  let(:transport){ OrangeData::Transport.new(api_root, test_credentials) }
+  subject{ transport }
 
   it "signs post requests" do
     expected_body = '{"some":"data"}'
-    req = stub_request(:post, "https://apip.orangedata.ru:2443/api/v2/test").with(
+    req = stub_request(:post, "#{api_root}test").with(
       body: expected_body,
       headers: {
         'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
@@ -34,6 +35,124 @@ RSpec.describe OrangeData::Transport do
     it "checks" do
       expect(test_credentials).not_to be_valid
       expect{ subject }.to raise_error(ArgumentError, /credentials/i)
+    end
+  end
+
+  describe "ping" do
+    subject{ transport.ping }
+
+    it "works" do
+      stub_request(:get, api_root).to_return(status: 200, body: "Nebula.Api v2")
+      expect(subject).to be_truthy
+    end
+
+    it "when timeout" do
+      stub_request(:get, api_root).to_timeout
+      expect(subject).to be_falsey
+    end
+  end
+
+  describe "post document validate" do
+    let(:document){ { some: 'data' } }
+    subject{ transport.post_document_validate document }
+    let(:response){ { status: 200 } }
+    before do
+      stub_request(:post, "#{api_root}validateDocument").
+        with(body: "{\"some\":\"data\"}").to_return(response)
+    end
+
+    it "works" do
+      is_expected.to be_truthy
+    end
+
+    context "when not valid" do
+      let(:response){ { status: 400, body: '{"errors":["Some error"]}', headers: { 'Content-type' => 'application/json' } } }
+      it { is_expected.to eq(["Some error"]) }
+    end
+
+    context "when not authorized" do
+      let(:response){ { status: 401 } }
+      it { expect{ subject }.to raise_error(/Unauthorized/) }
+    end
+
+    context "when 500" do
+      let(:response){ { status: 500 } }
+      it { expect{ subject }.to raise_error(/Unexpected/) }
+    end
+  end
+
+  describe "post document" do
+    let(:document){ { some: 'data' } }
+    subject{ transport.post_document document }
+    let(:resp_status){ 201 }
+    let(:resp_body){ nil }
+    before do
+      stub_request(:post, "#{api_root}documents").
+        with(body: "{\"some\":\"data\"}").to_return(status: resp_status, body: resp_body&.to_json, headers: { 'Content-type' => 'application/json' })
+    end
+
+    it{ is_expected.to be_truthy }
+
+    context "when conflict" do
+      let(:resp_status){ 409 }
+      it{ expect{ subject }.to raise_error(/Conflict/) }
+    end
+
+    context "when invalid doc" do
+      let(:resp_status){ 400 }
+      let(:resp_body){ { errors: ["blablabla"]} }
+      it{ expect{ subject }.to raise_error(/blablabla/) }
+    end
+
+    context "when other error on server" do
+      let(:resp_status){ 500 }
+      it{ expect{ subject }.to raise_error(/Unknown/) }
+    end
+  end
+
+  describe "post correction" do
+    let(:document){ { some: 'data' } }
+    subject{ transport.post_correction document }
+
+    it "works" do
+      stub_request(:post, "#{api_root}corrections").
+        with(body: "{\"some\":\"data\"}").to_return(status: 201)
+      is_expected.to be_truthy
+    end
+  end
+
+  describe "get document" do
+    let(:inn){ 123 }
+    let(:doc_id){ 456 }
+    subject{ transport.get_document inn, doc_id }
+    let(:resp_body){ {some: 'resp'} }
+    let(:resp_status){ 200 }
+    before do
+      stub_request(:get, "#{api_root}documents/123/status/456").
+        to_return(status: resp_status, body: resp_body.to_json, headers: { 'Content-type' => 'application/json' })
+    end
+    it { is_expected.to eq('some' => 'resp') }
+
+    context "when error" do
+      let(:resp_status){ 400 }; let(:resp_body){ { errors:["somefailhere"]} }
+      it{ expect{ subject }.to raise_error(/somefailhere/) }
+    end
+
+    context "when not authorized" do
+      let(:resp_status){ 401 }; let(:resp_body){ {} }
+      it{ expect{ subject }.to raise_error(/Unauthorized/) }
+    end
+  end
+
+  describe "get correction" do
+    let(:inn){ 123 }
+    let(:doc_id){ 456 }
+    subject{ transport.get_correction inn, doc_id }
+
+    it "works" do
+      stub_request(:get, "#{api_root}corrections/123/status/456").
+        to_return(status: 200, body:{some: 'resp'}.to_json, headers: { 'Content-type' => 'application/json' })
+      is_expected.to eq('some' => 'resp')
     end
   end
 

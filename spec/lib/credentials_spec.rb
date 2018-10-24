@@ -55,6 +55,15 @@ RSpec.describe OrangeData::Credentials do
     end
   end
 
+  describe "can generate key" do
+    subject{ described_class.new }
+
+    it "with defaults" do
+      expect{ subject.generate_signature_key! }.to change(subject, :signature_key)
+      expect(subject.signature_key).to be_a(OpenSSL::PKey::RSA).and(be_private)
+    end
+  end
+
   describe "default credentials" do
     subject{ described_class.default_test }
 

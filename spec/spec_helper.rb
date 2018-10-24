@@ -4,7 +4,13 @@ require 'bundler/setup'
 require 'webmock/rspec'
 require 'simplecov'
 
-SimpleCov.start
+if RSpec.configuration.files_to_run.size > 1
+  SimpleCov.start do
+    track_files 'lib/**/*.rb'
+    add_filter '/lib/orange_data/version.rb' # already loaded by bundler, so 0% coverage in report
+    add_filter %r{^/spec/}
+  end
+end
 
 require 'orangedata'
 
