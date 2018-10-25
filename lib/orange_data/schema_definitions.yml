@@ -329,15 +329,28 @@ definitions:
           Битовое поле, где номер бита обозначает, что оказывающий услугу покупателю (клиенту)
           пользователь является
         type: integer
-        x-todo: bitfield names
         x-bitfield:
-          0: банковский платежный агент
-          1: банковский платежный субагент
-          2: платежный агент
-          3: платежный субагент
-          4: поверенный
-          5: комиссионер
-          6: иной агент
+          bank_agent:
+            val: 0
+            description: банковский платежный агент
+          bank_subagent:
+            val: 1
+            description: банковский платежный субагент
+          payment_agent:
+            val: 2
+            description: платежный агент
+          payment_subagent:
+            val: 3
+            description: платежный субагент
+          attorney:
+            val: 4
+            description: поверенный
+          comissioner:
+            val: 5
+            description: комиссионер
+          other:
+            val: 6
+            description: иной агент
       agentInfo:
         "$ref": "#/definitions/AgentInfo"
         description: Данные агента
