@@ -1,0 +1,745 @@
+---
+info:
+  version: '2.0'
+  title: Nebula API v2
+  description: OpenApi-like definition for receipt schema with extensions and additions
+
+definitions:
+  CheckDocumentCreate[CheckContent]:
+    type: object
+    properties:
+      id:
+        description: Идентификатор документа, должен быть уникален в пределах организации.
+        type: string
+        required: true
+        minLength: 1
+        maxLength: 64
+      inn:
+        description: ИНН организации, для которой пробивается чек
+        type: string
+        required: true
+        minLength: 10
+        maxLength: 12
+      group:
+        description: Группа устройств, с помощью которых будет пробит чек
+        type: string
+        minLength: 1
+        maxLength: 32
+        required: true
+        nullable: true
+      key:
+        description: |-
+          Название ключа который должен быть использован для проверки подписи.
+          Для клиентов используется их ИНН, для партнеров и платежных агентов код с маской 301****
+        type: string
+        minLength: 1
+        maxLength: 32
+      content:
+        description: Содержимое документа
+        "$ref": "#/definitions/CheckContent"
+
+
+  CheckContent:
+    type: object
+    properties:
+      type:
+        x-tag-id: 1054
+        description: Признак расчета
+        type: integer
+        x-enum:
+          income:
+            val: 1
+            description: Приход
+          income_return:
+            val: 2
+            description: Возврат прихода
+          expense:
+            val: 3
+            description: Расход
+          expense_return:
+            val: 4
+            description: Возврат расхода
+      positions:
+        description: Список предметов расчета
+        x-tag-id: 1059
+        type: array
+        items:
+          "$ref": "#/definitions/CheckPosition"
+      checkClose:
+        "$ref": "#/definitions/CheckClose"
+        description: Параметры закрытия чека
+      customerContact:
+        description: Телефон или электронный адрес покупателя
+        x-tag-id: 1008
+        type: string
+      agentType:
+        format: byte
+        x-tag-id: 1057
+        x-todo: DRY
+        description: |-
+          Признак агента, 1057. Битовое поле, где номер бита обозначает,
+          что оказывающий услугу покупателю (клиенту) пользователь является:
+            0 – банковский платежный агент
+            1 – банковский платежный субагент
+            2 – платежный агент
+            3 – платежный субагент
+            4 – поверенный
+            5 – комиссионер
+            6 – иной агент
+            Кассовый чек(БСО) может содержать реквизиты «признак агента» (тег 1057),
+            только если отчет о регистрации и(или) текущий отчет о перерегистрации
+            содержит реквизит «признак агента» (тег 1057), имеющий значение, идентичное
+            значению реквизита «признак агента» (тег 1057) кассового чека.
+        type: string
+      paymentTransferOperatorPhoneNumbers:
+        description: Телефон оператора перевода
+        x-tag-id: 1075
+        type: array
+        items:
+          type: string
+      paymentAgentOperation:
+        description: Операция платежного агента
+        x-tag-id: 1044
+        type: string
+      paymentAgentPhoneNumbers:
+        description: Телефон платежного агента
+        x-tag-id: 1073
+        type: array
+        items:
+          type: string
+      paymentOperatorPhoneNumbers:
+        description: Телефон оператора по приему платежей
+        x-tag-id: 1074
+        type: array
+        items:
+          type: string
+      paymentOperatorName:
+        description: Наименование оператора перевода
+        x-tag-id: 1026
+        type: string
+      paymentOperatorAddress:
+        description: Адрес оператора перевода
+        x-tag-id: 1005
+        type: string
+      paymentOperatorINN:
+        description: ИНН оператора перевода
+        x-tag-id: 1016
+        type: string
+      supplierPhoneNumbers:
+        description: Телефон поставщика
+        x-tag-id: 1171
+        type: array
+        items:
+          type: string
+      additionalUserAttribute:
+        "$ref": "#/definitions/AdditionalUserAttribute"
+        description: Дополнительный реквизит пользователя
+        x-tag-id: 1084
+      automatNumber:
+        description: Номер автомата
+        x-tag-id: 1036
+        type: string
+      settlementAddress:
+        description: Адрес расчетов
+        x-tag-id: 1009
+        type: string
+      settlementPlace:
+        description: Место расчетов
+        x-tag-id: 1187
+        type: string
+      additionalAttribute:
+        description: Дополнительный реквизит чека (БСО)
+        x-tag-id: 1192
+        type: string
+      customer:
+        description: Покупатель (клиент)
+        x-tag-id: 1227
+        type: string
+      customerINN:
+        description: ИНН покупателя (клиента)
+        x-tag-id: 1228
+        type: string
+
+
+  CheckPosition:
+    description: Предмет расчета
+    x-tag-id: 1059
+    type: object
+    properties:
+      quantity:
+        format: double
+        description: Количество предмета расчета
+        x-tag-id: 1023
+        type: number
+        x-comment: до 6 знаков после точки
+      price:
+        format: double
+        description: Цена за единицу предмета расчета с учетом скидок и наценок
+        x-tag-id: 1079
+        type: number
+        x-comment: до 2 знаков после точки
+      totalSum:
+        format: double
+        x-tag-id: 1043
+        x-unknown: в документации нет, считается автоматом?
+        description: |-
+          Стоимость предмета расчета с учетом скидок и наценок
+
+          Значение реквизита «стоимость предмета расчета с учетом скидок и наценок» (тег 1043)
+          должно быть равно произведению значения реквизита
+          «цена за единицу предмета расчета с учетом скидок и наценок» (тег 1079),
+          умноженному на значение реквизита «количество предмета расчета» (тег 1023).
+
+          В случае если вычисление значения реквизита «стоимость предмета расчета
+          с учетом скидок и наценок» (тег 1043) осуществляется с использованием внешнего
+          калькулирующего устройства и включается в состав кассового чека (БСО) на основании
+          результатов, вычисленных этими калькулирующим устройством,
+          значение реквизита «стоимость предмета расчета с учетом скидок и наценок» (тег 1043),
+          вычисленного внешним калькулирующим устройством, не должно отличаться от значения реквизита
+          «стоимость предмета расчета с учетом скидок и наценок» (тег 1043),
+          вычисленного путем умножения значения реквизита
+          «цена за единицу предмета расчета с учетом скидок и наценок» (тег 1079)
+          на значение реквизита «количество предмета расчета» (тег 1023),
+          больше, чем на 1 копейку.
+        type: number
+      tax:
+        description: Ставка НДС
+        x-tag-id: 1199
+        type: integer
+        x-enum:
+          vat_18:
+            val: 1
+            description: ставка НДС 18%
+          vat_10:
+            val: 2
+            description: ставка НДС 10%
+          vat_18_118:
+            val: 3
+            description: ставка НДС расч. 18/118
+          vat_10_110:
+            val: 4
+            description: ставка НДС расч. 10/110
+          vat_0:
+            val: 5
+            description: ставка НДС 0%
+          vat_not_charged:
+            val: 6
+            description: НДС не облагается
+      text:
+        description: Наименование предмета расчета
+        x-tag-id: 1030
+        type: string
+        maxLength: 128
+      paymentMethodType:
+        x-tag-id: 1214
+        description: Признак способа расчета
+        type: integer
+        x-enum:
+          prepay_full:
+            val: 1
+            description: Предоплата 100%
+          prepay_partial:
+            val: 2
+            description: Частичная предоплата
+          advance:
+            val: 3
+            description: Аванс
+          full:
+            val: 4
+            description: Полный расчет
+          partial_credit:
+            val: 5
+            description: Частичный расчет и кредит
+          credit:
+            val: 6
+            description: Передача в кредит
+          credit_payment:
+            val: 7
+            description: Оплата кредита
+
+      paymentSubjectType:
+        x-tag-id: 1212
+        description: Признак предмета расчета
+        type: integer
+        nullable: true
+        x-comment: если null, то считается что "товар"
+        x-enum:
+          goods:
+            val: 1
+            description: Товар
+          excised_goods:
+            val: 2
+            description: Подакцизный товар
+          work:
+            val: 3
+            description: Работа
+          service:
+            val: 4
+            description: Услуга
+          gambling_bet:
+            val: 5
+            description: Ставка азартной игры
+          gambling_win:
+            val: 6
+            description: Выигрыш азартной игры
+          lottery_ticket:
+            val: 7
+            description: Лотерейный билет
+          lottery_win:
+            val: 8
+            description: Выигрыш лотереи
+          intellectual:
+            val: 9
+            description: Предоставление РИД
+            x-comment: РИД = результат интеллектуальной деятельности
+          payment:
+            val: 10
+            description: Платеж
+          comission:
+            val: 11
+            description: Агентское вознаграждение
+          composite:
+            val: 12
+            description: Составной предмет расчета
+          other:
+            val: 13
+            description: Иной предмет расчета
+
+      nomenclatureCode:
+        description: Код товарной номенклатуры
+        x-comment: base64 массив, что внутри - пока не ясно
+        x-tag-id: 1162
+        type: string
+        nullable: true
+        format: byte
+        minLength: 1
+        maxLength: 32
+      supplierInfo:
+        "$ref": "#/definitions/SupplierInfo"
+        description: Данные поставщика
+        nullable: true
+        x-tag-id: 1224
+      supplierINN:
+        description: ИНН поставщика
+        x-tag-id: 1226
+        type: string
+      agentType:
+        x-tag-id: 1222
+        description: Признак агента по предмету расчета
+          Битовое поле, где номер бита обозначает, что оказывающий услугу покупателю (клиенту)
+          пользователь является
+        type: integer
+        x-todo: bitfield names
+        x-bitfield:
+          0: банковский платежный агент
+          1: банковский платежный субагент
+          2: платежный агент
+          3: платежный субагент
+          4: поверенный
+          5: комиссионер
+          6: иной агент
+      agentInfo:
+        "$ref": "#/definitions/AgentInfo"
+        description: Данные агента
+        x-tag-id: 1223
+      unitOfMeasurement:
+        description: Единица измерения предмета расчета
+        x-tag-id: 1197
+        type: string
+      additionalAttribute:
+        description: Дополнительный реквизит предмета расчета
+        x-tag-id: 1191
+        type: string
+      manufacturerCountryCode:
+        description: Код страны происхождения товара
+        x-tag-id: 1230
+        type: string
+      customsDeclarationNumber:
+        description: Номер таможенной декларации
+        x-tag-id: 1231
+        type: string
+      excise:
+        format: double
+        description: Акциз
+        x-tag-id: 1229
+        type: number
+  CheckClose:
+    type: object
+    properties:
+      payments:
+        description: Оплаты
+        type: array
+        items:
+          "$ref": "#/definitions/CheckPayment"
+      taxationSystem:
+        x-tag-id: 1055
+        description: Система налогообложения
+        type: integer
+        x-enum:
+          common:
+            val: 0
+            description: Общая, ОСН
+          simplified:
+            val: 1
+            description: Упрощенная доход, УСН доход
+          simplified_difference:
+            val: 2
+            description: Упрощенная доход минус расход, УСН доход - расход
+          envd:
+            val: 3
+            description: Единый налог на вмененный доход, ЕНВД
+          esn:
+            val: 4
+            description: Единый сельскохозяйственный налог, ЕСН
+          patent:
+            val: 5
+            description: Патентная система налогообложения, Патент
+
+  AdditionalUserAttribute:
+    description: Дополнительный реквизит пользователя
+    x-tag-id: 1084
+    type: object
+    properties:
+      name:
+        description: Наименование дополнительного реквизита пользователя
+        x-tag-id: 1085
+        type: string
+      value:
+        description: Значение дополнительного реквизита пользователя
+        x-tag-id: 1086
+        type: string
+  SupplierInfo:
+    description: Данные поставщика
+    x-tag-id: 1224
+    type: object
+    properties:
+      phoneNumbers:
+        description: Телефон поставщика
+        x-tag-id: 1171
+        type: array
+        items:
+          type: string
+      name:
+        description: Наименование поставщика
+        x-tag-id: 1225
+        type: string
+  AgentInfo:
+    description: Данные агента
+    x-tag-id: 1223
+    type: object
+    properties:
+      paymentTransferOperatorPhoneNumbers:
+        description: Телефон оператора перевода
+        x-tag-id: 1075
+        type: array
+        items:
+          type: string
+      paymentAgentOperation:
+        description: Операция платежного агента
+        x-tag-id: 1044
+        type: string
+      paymentAgentPhoneNumbers:
+        description: Телефон платежного агента
+        x-tag-id: 1073
+        type: array
+        items:
+          type: string
+      paymentOperatorPhoneNumbers:
+        description: Телефон оператора по приему платежей
+        x-tag-id: 1074
+        type: array
+        items:
+          type: string
+      paymentOperatorName:
+        description: Наименование оператора перевода
+        x-tag-id: 1026
+        type: string
+      paymentOperatorAddress:
+        description: Адрес оператора перевода
+        x-tag-id: 1005
+        type: string
+      paymentOperatorINN:
+        description: ИНН оператора перевода
+        x-tag-id: 1016
+        type: string
+  CheckPayment:
+    type: object
+    properties:
+      type:
+        type: integer
+        x-tag-id: value-mapped
+        description: Тип оплаты
+        x-enum:
+          cash:
+            val: 1
+            description: сумма по чеку наличными
+            x-tag-id: 1031
+          card:
+            val: 2
+            description: сумма по чеку электронными
+            x-tag-id: 1081
+          prepaid:
+            val: 14
+            description: сумма по чеку предоплатой(зачетом аванса и (или) предыдущих платежей)
+            x-tag-id: 1215
+          credit:
+            val: 15
+            description: сумма по чеку постоплатой(в кредит)
+            x-tag-id: 1216
+          counterclaim:
+            val: 16
+            description: сумма по чеку(БСО) встречным предоставлением
+            x-tag-id: 1217
+      amount:
+        format: double
+        x-tag-id: other-field-mapped
+        x-comment: точность до 2 знаков после запятой, попадает в тег поля по значению type (1031,1081,1215,1216,1217)
+        description: Сумма оплаты
+        type: number
+
+
+  ValidationErrors:
+    type: object
+    properties:
+      errors:
+        type: array
+        items:
+          type: string
+
+
+
+  CheckDocumentCreate[CorrectionContent]:
+    type: object
+    properties:
+      id:
+        type: string
+      inn:
+        type: string
+      group:
+        type: string
+      key:
+        type: string
+      content:
+        "$ref": "#/definitions/CorrectionContent"
+  CorrectionContent:
+    type: object
+    properties:
+      correctionType:
+        description: Тип коррекции
+        x-tag-id: 1173
+        type: integer
+        x-enum:
+          manual:
+            val: 0
+            description: Самостоятельно
+          prescribed:
+            val: 1
+            description: По предписанию
+      type:
+        description: Признак расчета
+        x-tag-id: 1054
+        type: integer
+        x-enum:
+          income:
+            val: 1
+            description: Приход
+          expense:
+            val: 3
+            description: Расход
+
+      description:
+        description: Описание коррекции
+        x-tag-id: 1177
+        type: string
+      causeDocumentDate:
+        format: date-time
+        description: Дата документа основания для коррекции
+        x-tag-id: 1178
+        x-comment: В данном реквизите время всегда указывать, как 00:00:00
+        type: string
+      causeDocumentNumber:
+        description: Номер документа основания для коррекции
+        x-tag-id: 1179
+        type: string
+      totalSum:
+        format: double
+        description: Сумма расчета, указанного в чеке (БСО)
+        x-tag-id: 1020
+        type: number
+      automatNumber:
+        description: Номер автомата
+        x-tag-id: 1036
+        type: string
+      settlementAddress:
+        description: Адрес расчетов
+        x-tag-id: 1009
+        type: string
+      settlementPlace:
+        description: Место расчетов
+        x-tag-id: 1187
+        type: string
+      cashSum:
+        format: double
+        description: Сумма по чеку (БСО) наличными
+        x-tag-id: 1031
+        type: number
+      eCashSum:
+        format: double
+        description: Сумма по чеку (БСО) электронными
+        x-tag-id: 1081
+        type: number
+      prepaymentSum:
+        format: double
+        description: Сумма по чеку (БСО) предоплатой (зачетом аванса и (или) предыдущих платежей)
+        x-tag-id: 1215
+        type: number
+      postpaymentSum:
+        format: double
+        description: Сумма по чеку (БСО) постоплатой (в кредит)
+        x-tag-id: 1216
+        type: number
+      otherPaymentTypeSum:
+        format: double
+        description: Сумма по чеку (БСО) встречным предоставлением
+        x-tag-id: 1217
+        type: number
+      tax1Sum:
+        format: double
+        description: Сумма НДС чека по ставке 18%
+        x-tag-id: 1102
+        type: number
+      tax2Sum:
+        format: double
+        description: Сумма НДС чека по ставке 10%
+        x-tag-id: 1103
+        type: number
+      tax3Sum:
+        format: double
+        description: Сумма расчета по чеку с НДС по ставке 0%
+        x-tag-id: 1104
+        type: number
+      tax4Sum:
+        format: double
+        description: Сумма расчета по чеку без НДС
+        x-tag-id: 1105
+        type: number
+      tax5Sum:
+        format: double
+        description: Сумма НДС чека по расч. ставке 18/118
+        x-tag-id: 1106
+        type: number
+      tax6Sum:
+        format: double
+        description: Сумма НДС чека по расч. ставке 10/110
+        x-tag-id: 1107
+        type: number
+      taxationSystem:
+        type: integer
+        x-todo: DRY
+        description: Применяемая система налогообложения
+        x-tag-id: 1055
+        x-enum:
+          common:
+            val: 0
+            description: Общая, ОСН
+          simplified:
+            val: 1
+            description: Упрощенная доход, УСН доход
+          simplified_difference:
+            val: 2
+            description: Упрощенная доход минус расход, УСН доход - расход
+          envd:
+            val: 3
+            description: Единый налог на вмененный доход, ЕНВД
+          esn:
+            val: 4
+            description: Единый сельскохозяйственный налог, ЕСН
+          patent:
+            val: 5
+            description: Патентная система налогообложения, Патент
+
+  CheckStatusViewModel[CheckContent]:
+    type: object
+    properties:
+      id:
+        type: string
+      deviceSN:
+        type: string
+      deviceRN:
+        type: string
+      fsNumber:
+        type: string
+      ofdName:
+        type: string
+      ofdWebsite:
+        type: string
+      ofdinn:
+        type: string
+      fnsWebsite:
+        type: string
+      companyINN:
+        type: string
+      companyName:
+        type: string
+      documentNumber:
+        format: int64
+        type: integer
+      shiftNumber:
+        format: int32
+        type: integer
+      documentIndex:
+        format: int32
+        type: integer
+      processedAt:
+        format: date-time
+        type: string
+      content:
+        "$ref": "#/definitions/CheckContent"
+      change:
+        format: double
+        type: number
+      fp:
+        type: string
+
+  CheckStatusViewModel[CorrectionContent]:
+    type: object
+    properties:
+      id:
+        type: string
+      deviceSN:
+        type: string
+      deviceRN:
+        type: string
+      fsNumber:
+        type: string
+      ofdName:
+        type: string
+      ofdWebsite:
+        type: string
+      ofdinn:
+        type: string
+      fnsWebsite:
+        type: string
+      companyINN:
+        type: string
+      companyName:
+        type: string
+      documentNumber:
+        format: int64
+        type: integer
+      shiftNumber:
+        format: int32
+        type: integer
+      documentIndex:
+        format: int32
+        type: integer
+      processedAt:
+        format: date-time
+        type: string
+      content:
+        "$ref": "#/definitions/CorrectionContent"
+      change:
+        format: double
+        type: number
+      fp:
+        type: string
