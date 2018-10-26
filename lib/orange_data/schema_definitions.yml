@@ -4,6 +4,10 @@ info:
   title: Nebula API v2
   description: OpenApi-like definition for receipt schema with extensions and additions
 
+anyOf:
+  - "$ref": "#definitions/CheckDocumentCreate[CheckContent]"
+  - "$ref": "#definitions/CheckDocumentCreate[CorrectionContent]"
+
 definitions:
   CheckDocumentCreate[CheckContent]:
     type: object
@@ -533,7 +537,7 @@ definitions:
 
   CheckDocumentCreate[CorrectionContent]:
     type: object
-    x-todo: DRY CheckDocumentCreate[DocumentContent] is exactly the same, but has different content field
+    x-todo: DRY CheckDocumentCreate[CheckContent] is exactly the same, but has different content field
     properties:
       id:
         type: string
