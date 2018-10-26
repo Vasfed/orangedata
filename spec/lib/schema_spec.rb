@@ -15,7 +15,7 @@ RSpec.describe "Data Schema" do
   it "data schema is a valid json-schema" do
     # OpenAPI is based on draft5, which has the schema of draft4
     expect(JSON::Validator.fully_validate_schema(subject, version: :draft4)).to eq([])
-    expect(JSON::Validator.fully_validate(extensions_metaschema, subject, version: :draft4)).to eq([])
+    expect(JSON::Validator.fully_validate(extensions_metaschema, subject)).to eq([])
   end
 
 end

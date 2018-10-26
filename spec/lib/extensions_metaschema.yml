@@ -1,6 +1,8 @@
 ---
-id: extmetaschema#
 "$schema": http://json-schema.org/draft/schema#
+"$id": extmetaschema#
+# for draft4 compatibility:
+id: extmetaschema#
 description: Extensions metaschema
 
 definitions:
