@@ -18,4 +18,11 @@ RSpec.describe "Data Schema" do
     expect(JSON::Validator.fully_validate(extensions_metaschema, subject)).to eq([])
   end
 
+  it "x-enum and x-bitfield are exclusive" do
+    expect(JSON::Validator.fully_validate(extensions_metaschema, {
+      "x-bitfield": { a: { bit: 1 }},
+      "x-enum": { a: { val: 1 }}
+      })).not_to eq([])
+  end
+
 end

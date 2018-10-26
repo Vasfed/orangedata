@@ -13,6 +13,15 @@ definitions:
       "$ref": "#"
 
 type: object
+dependencies:
+  # exclusive:
+  x-enum:
+    not:
+      required: [ x-bitfield ]
+  x-bitfield:
+    not:
+      required: [ x-enum ]
+
 properties:
   x-comment:
     type: string
