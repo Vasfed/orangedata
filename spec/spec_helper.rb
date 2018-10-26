@@ -2,8 +2,9 @@
 
 require 'bundler/setup'
 require 'webmock/rspec'
-require 'simplecov'
+require 'json-schema'
 
+require 'simplecov'
 if RSpec.configuration.files_to_run.size > 1
   SimpleCov.start do
     track_files 'lib/**/*.rb'

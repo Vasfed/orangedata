@@ -136,7 +136,7 @@ RSpec.describe OrangeData::Transport do
     let(:inn){ 123 }
     let(:doc_id){ 456 }
     subject{ transport.get_document inn, doc_id }
-    let(:resp_body){ {some: 'resp'} }
+    let(:resp_body){ {id: 'resp'} }
     let(:resp_status){ 200 }
     before do
       stub_request(:get, "#{api_root}documents/123/status/456").
@@ -144,7 +144,7 @@ RSpec.describe OrangeData::Transport do
     end
     it do
       is_expected.to be_a(OrangeData::ReceiptResult)
-      expect(subject.some).to eq('resp')
+      expect(subject.id).to eq('resp')
     end
 
     context "when error" do

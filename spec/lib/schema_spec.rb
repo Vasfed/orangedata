@@ -1,9 +1,5 @@
 RSpec.describe "Data Schema" do
 
-  before(:all) do
-    require 'json-schema'
-  end
-
   subject{ OrangeData::PAYLOAD_SCHEMA }
   let(:extensions_metaschema){ YAML.load_file(File.expand_path('extensions_metaschema.yml', __dir__)) }
 

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'ostruct'
-
 module OrangeData
 
   PAYLOAD_SCHEMA = YAML.load_file(File.expand_path('schema_definitions.yml', __dir__)).freeze
@@ -139,7 +137,7 @@ module OrangeData
 
   class ReceiptContent < PayloadContent
     def initialize payload={}
-      @payload = payload
+      @payload = payload || {}
       # TODO: import...
       # TODO: taxationSystem default in checkclose
       @check_close = CheckClose.new(@payload['checkClose'])
@@ -147,6 +145,11 @@ module OrangeData
       if @payload["additionalUserAttribute"]
         @additional_user_attribute = AdditionalUserAttribute.new(@payload["additionalUserAttribute"])
       end
+    end
+
+    # сырой тип используется в qr_code
+    def raw_type
+      @payload["type"]
     end
 
     def to_hash
@@ -262,32 +265,36 @@ module OrangeData
     # TODO: same as Receipt, but based on correctionType
   end
 
-  class ReceiptResult < OpenStruct
+  class ReceiptResult < PayloadContent
+    def initialize payload
+      @payload = payload
+      @content = ReceiptContent.new(@payload["content"])
+    end
+
     def self.from_hash(hash)
       raise ArgumentError, 'Expect hash here' unless hash.is_a?(Hash)
       new(hash)
     end
 
-    def content
-      @content ||= OpenStruct.new(super)
-    end
+    attr_reader :content
+    GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CheckStatusViewModel[CheckContent]"])
 
     def qr_code_content
       #  С живого чека:  t=20180518T220500&s=975.88&fn=8710000101125654&i=99456&fp=1250448795&n=1
       # Пример: t=20150720T1638&s=9999999.00&fn=000110000105&i=12345678&fp=123456&n=2
       {
         # - t=<date/time - дата и время осуществления расчета в формате ГГГГММДДТЧЧММ>
-        t: self.processedAt.gsub(/:\d{2}\z/, '').gsub(/[^0-9T]/, ''),
+        t: self.processed_at.gsub(/:\d{2}\z/, '').gsub(/[^0-9T]/, ''),
         # - s=<сумма расчета в рублях и копейках, разделенных точкой>
-        s: content.checkClose["payments"].inject(0.0){|d, p| d + p["amount"]},
+        s: content.check_close.payments.inject(0.0){|d, p| d + p.amount},
         # - fn=<заводской номер фискального накопителя>
-        fn: fsNumber,
+        fn: fs_number,
         # - i=<порядковый номер фискального документа, нулями не дополняется>
-        i: documentNumber, # documentIndex??
+        i: document_number, # documentIndex??
         # - fp=<фискальный признак документа, нулями не дополняется>
         fp: fp,
         # - n=<признак расчета>.
-        n: content.type, #??
+        n: content.raw_type, #??
       }.map{|k, v| "#{k}=#{v}" }.join('&')
     end
   end
