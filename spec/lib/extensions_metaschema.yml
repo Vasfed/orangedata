@@ -1,0 +1,113 @@
+---
+id: extmetaschema#
+"$schema": http://json-schema.org/draft/schema#
+description: Extensions metaschema
+
+definitions:
+  schemaArray:
+    type: array
+    minItems: 1
+    items:
+      "$ref": "#"
+
+type: object
+properties:
+  x-comment:
+    type: string
+    description: Additional comment, like description
+
+  x-tag-id:
+    description: Номер соответствующего полю тега в ФН
+    type: integer
+
+  x-enum:
+    description: Маппинг и описание значений поля
+    type: object
+    propertyNames:
+      description: Ключи хеша это названия для маппинга
+      pattern: ^[A-Za-z_][A-Za-z0-9_]*$
+    additionalProperties:
+      type: object
+      required: [ val ]
+      properties:
+        val:
+          description: значение, должно быть уникальным
+        description:
+          description: Описание значения
+          type: string
+        x-tag-id:
+          description: "Номер тега в ФН, который задействуется при использовании этого значения для поля"
+          type: integer
+
+  x-bitfield:
+    description: Маппинг и описание битов в битовом поле
+    type: object
+    propertyNames:
+      description: Ключи хеша это названия для маппинга
+      pattern: ^[A-Za-z_][A-Za-z0-9_]*$
+    additionalProperties:
+      type: object
+      required: [ bit ]
+      properties:
+        bit:
+          description: Номер бита, должен быть уникальным в пределах этого описания поля
+        description:
+          type: string
+          description: Описание значения
+
+  x-todo:
+    type: string
+    description: more comments
+
+  x-unknown:
+    description: Нет полной информации по этому полю
+
+  #Below are duplicates from json schema to provide looping
+  additionalItems:
+    anyOf:
+    - type: boolean
+    - "$ref": "#"
+    default: {}
+  items:
+    anyOf:
+    - "$ref": "#"
+    - "$ref": "#/definitions/schemaArray"
+    default: {}
+  additionalProperties:
+    anyOf:
+    - type: boolean
+    - "$ref": "#"
+    default: {}
+  definitions:
+    type: object
+    additionalProperties:
+      "$ref": "#"
+    default: {}
+  properties:
+    type: object
+    additionalProperties:
+      "$ref": "#"
+    default: {}
+  patternProperties:
+    type: object
+    additionalProperties:
+      "$ref": "#"
+    default: {}
+  dependencies:
+    type: object
+    additionalProperties:
+      anyOf:
+      - "$ref": "#"
+      - type: array
+        items:
+          type: string
+        minItems: 1
+        uniqueItems: true
+  allOf:
+    "$ref": "#/definitions/schemaArray"
+  anyOf:
+    "$ref": "#/definitions/schemaArray"
+  oneOf:
+    "$ref": "#/definitions/schemaArray"
+  not:
+    "$ref": "#"

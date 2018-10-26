@@ -11,13 +11,11 @@ definitions:
       id:
         description: Идентификатор документа, должен быть уникален в пределах организации.
         type: string
-        required: true
         minLength: 1
         maxLength: 64
       inn:
         description: ИНН организации, для которой пробивается чек
         type: string
-        required: true
         minLength: 10
         maxLength: 12
       group:
@@ -25,7 +23,6 @@ definitions:
         type: string
         minLength: 1
         maxLength: 32
-        required: true
         nullable: true
       key:
         description: Название ключа который должен быть использован для проверки подписи
@@ -86,25 +83,25 @@ definitions:
         type: integer
         x-bitfield:
           bank_agent:
-            val: 0
+            bit: 0
             description: банковский платежный агент
           bank_subagent:
-            val: 1
+            bit: 1
             description: банковский платежный субагент
           payment_agent:
-            val: 2
+            bit: 2
             description: платежный агент
           payment_subagent:
-            val: 3
+            bit: 3
             description: платежный субагент
           attorney:
-            val: 4
+            bit: 4
             description: поверенный
           comissioner:
-            val: 5
+            bit: 5
             description: комиссионер
           other:
-            val: 6
+            bit: 6
             description: иной агент
       paymentTransferOperatorPhoneNumbers:
         description: Телефон оператора перевода
@@ -346,25 +343,25 @@ definitions:
         type: integer
         x-bitfield:
           bank_agent:
-            val: 0
+            bit: 0
             description: банковский платежный агент
           bank_subagent:
-            val: 1
+            bit: 1
             description: банковский платежный субагент
           payment_agent:
-            val: 2
+            bit: 2
             description: платежный агент
           payment_subagent:
-            val: 3
+            bit: 3
             description: платежный субагент
           attorney:
-            val: 4
+            bit: 4
             description: поверенный
           comissioner:
-            val: 5
+            bit: 5
             description: комиссионер
           other:
-            val: 6
+            bit: 6
             description: иной агент
       agentInfo:
         "$ref": "#/definitions/AgentInfo"
@@ -495,7 +492,6 @@ definitions:
     properties:
       type:
         type: integer
-        x-tag-id: value-mapped
         description: Тип оплаты
         x-enum:
           cash:
@@ -520,7 +516,6 @@ definitions:
             x-tag-id: 1217
       amount:
         format: double
-        x-tag-id: other-field-mapped
         x-comment: точность до 2 знаков после запятой, попадает в тег поля по значению type (1031,1081,1215,1216,1217)
         description: Сумма оплаты
         type: number
@@ -538,6 +533,7 @@ definitions:
 
   CheckDocumentCreate[CorrectionContent]:
     type: object
+    x-todo: DRY CheckDocumentCreate[DocumentContent] is exactly the same, but has different content field
     properties:
       id:
         type: string
@@ -549,6 +545,7 @@ definitions:
         type: string
       content:
         "$ref": "#/definitions/CorrectionContent"
+
   CorrectionContent:
     type: object
     properties:
