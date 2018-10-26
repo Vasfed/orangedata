@@ -35,50 +35,46 @@ gem 'orangedata'
 
 ```ruby
   transport = OrangeData::Transport.new("https://apip.orangedata.ru:2443/api/v2/", OrangeData::Credentials.default_test)
-
-  receipt = {
-    id: SecureRandom.uuid,
-    inn: '1234567890', key:'1234567890',
-    content: { # тут собрать данные можно по официальному мануалу
-      type: 1,
-      positions:[{ quantity: 1, price: 0.01, tax: 4, text: "Товар на копейку"}],
-      checkClose:{
-        payments: [{ type:2, amount:'0.01' }],
-        taxationSystem: 1
-      }
-    }
+  receipt = OrangeData::Receipt.income(inn:"1234567890"){|r|
+    r.customer = "Иван Иваныч"
+    r.add_position("Спички", price: 12.34){|pos| pos.tax = :vat_not_charged }
+    r.add_payment(50, :cash)
   }
   transport.post_document(receipt)
-  # wait some time, then
-  transport.get_document("1234567890", receipt[:id])
-  # =>
+  # wait some time
+  res = transport.get_document(receipt.inn, receipt.id)
+
+  # => (внутри такое, а вернет объект)
   # {
-  #   "id"=>"a88b6b30-20ab-47ea-95ca-f12f22ef03d3",
-  #   "deviceSN"=>"1400000000001033",
-  #   "deviceRN"=>"0000000400054952",
-  #   "fsNumber"=>"9999078900001341",
-  #   "ofdName"=>"ООО \"Ярус\" (\"ОФД-Я\")",
-  #   "ofdWebsite"=>"www.ofd-ya.ru",
-  #   "ofdinn"=>"7728699517",
-  #   "fnsWebsite"=>"www.nalog.ru",
-  #   "companyINN"=>"1234567890",
-  #   "companyName"=>"Тест",
-  #   "documentNumber"=>5548,
-  #   "shiftNumber"=>6072,
-  #   "documentIndex"=>3045,
-  #   "processedAt"=>"2018-10-22T19:36:00",
-  #   "content"=>
-  #     {
-  #       "type"=>1,
-  #       "positions"=>[{"quantity"=>1.0, "price"=>0.01, "tax"=>4, "text"=>"Товар на копейку"}],
-  #       "checkClose"=>{
-  #         "payments"=>[{"type"=>2, "amount"=>0.01}],
-  #         "taxationSystem"=>1
-  #       }
-  #     },
-  #   "change"=>0.0,
-  #   "fp"=>"787980846"
+  # "id"=>"50152258-a9aa-4d19-9216-5a3eecec7241",
+  # "deviceSN"=>"1400000000001033",
+  # "deviceRN"=>"0000000400054952",
+  # "fsNumber"=>"9999078900001341",
+  # "ofdName"=>"ООО \"Ярус\" (\"ОФД-Я\")",
+  # "ofdWebsite"=>"www.ofd-ya.ru",
+  # "ofdinn"=>"7728699517",
+  # "fnsWebsite"=>"www.nalog.ru",
+  # "companyINN"=>"1234567890",
+  # "companyName"=>"Тест",
+  # "documentNumber"=>3243,
+  # "shiftNumber"=>234,
+  # "documentIndex"=>7062, "processedAt"=>"2018-10-26T20:21:00",
+  # "content"=>{
+  #   "type"=>1,
+  #   "positions"=>[{"price"=>12.34, "tax"=>6, "text"=>"Спички"}],
+  #   "checkClose"=>{"payments"=>[{"type"=>1, "amount"=>50.0}], "taxationSystem"=>0},
+  #   "customer"=>"Иван Иваныч"
+  # },
+  # "change"=>37.66,
+  # "fp"=>"301645583"
   # }
+
+  res.device_sn
+  # => "1400000000001033"
+
+  # и даже так:
+  res.qr_code_content
+  # => "t=20181026T2021&s=50.0&fn=9999078900001341&i=3243&fp=301645583&n=1"
 ```
 
 ### Получаем сертификаты
