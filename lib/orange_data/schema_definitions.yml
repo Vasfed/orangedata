@@ -437,6 +437,7 @@ definitions:
         description: Значение дополнительного реквизита пользователя
         x-tag-id: 1086
         type: string
+
   SupplierInfo:
     description: Данные поставщика
     x-tag-id: 1224
@@ -452,6 +453,7 @@ definitions:
         description: Наименование поставщика
         x-tag-id: 1225
         type: string
+
   AgentInfo:
     description: Данные агента
     x-tag-id: 1223

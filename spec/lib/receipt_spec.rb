@@ -98,11 +98,9 @@ RSpec.describe OrangeData::Receipt do
       end
     end
 
-
   end
 
   describe "Creation and export" do
-
     subject{
       OrangeData::Receipt.income(id:'test123', inn: "12345"){|r|
         r.customer = "Иван Иваныч"
@@ -118,6 +116,7 @@ RSpec.describe OrangeData::Receipt do
         group: 'Main',
         content: {
           customer: 'Иван Иваныч',
+          type: 1,
           positions: [
             {
               text: 'Спички',
@@ -139,6 +138,31 @@ RSpec.describe OrangeData::Receipt do
       json = subject.to_json
       expect(JSON::Validator.fully_validate_json(OrangeData::PAYLOAD_SCHEMA, json)).to eq []
       expect(json).to eq expected_json
+    end
+
+    it "more complex example" do
+      receipt = OrangeData::Receipt.income_return(id: 'test321', inn:'43121'){|r|
+        r.customer = "Иван Иваныч"
+        r.add_position("Спички", price: 12.34, tax: :vat_not_charged)
+        r.add_position("Какая-то агентская хрень", price: 12.34, tax: :vat_not_charged){|pos|
+          pos.set_agent_info payment_operator_inn:'12345'
+          pos.set_supplier_info name:'ООО Ромашка'
+        }
+        r.add_payment(1, :card)
+        r.add_payment(50, :cash)
+        r.check_close.taxation_system = :common
+        r.set_additional_user_attribute name:'Аттрибут', value:'lala'
+      }
+      json = receipt.to_json
+      expect(JSON::Validator.fully_validate_json(OrangeData::PAYLOAD_SCHEMA, json)).to eq []
+
+      # puts JSON.pretty_generate(JSON.parse(json))
+
+      #parse back to get additional coverate:
+      parsed = OrangeData::ReceiptContent.new(JSON.parse(json)["content"])
+      expect(parsed).to be_a(OrangeData::ReceiptContent)
+      pending
+      expect(parsed).to eq(receipt.content)
     end
   end
 

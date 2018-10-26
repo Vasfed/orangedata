@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'yaml'
+require 'json'
+
 module OrangeData
 
   PAYLOAD_SCHEMA = YAML.load_file(File.expand_path('schema_definitions.yml', __dir__)).freeze
@@ -32,14 +35,14 @@ module OrangeData
       yield @content if block_given?
     end
 
-    def to_json
+    def to_json(*args)
       {
         id: id,
         inn: inn,
         group: group || 'Main',
         content: content,
         key: key_name
-      }.to_json
+      }.to_json(*args)
     end
   end
 
@@ -50,8 +53,9 @@ module OrangeData
     end
     PAYLOAD_SCHEMA["definitions"]["CheckContent"]["properties"]["type"]["x-enum"].each_pair do |slug, info|
       define_singleton_method(slug) do |**args, &block|
-        # TODO: add $.content.type: info["val"]
-        new(**args, &block)
+        new(**args, &block).tap{|doc|
+          doc.content.type = slug
+        }
       end
     end
   end
@@ -126,6 +130,19 @@ module OrangeData
       @payload = payload
     end
 
+    def assign_attributes options
+      options.each_pair{|k,v|
+        setter = :"#{k}="
+        send(setter, v) if respond_to?(setter)
+      }
+      # for chaining:
+      self
+    end
+
+    def ==(other)
+      self.class == other.class && @payload == other.instance_variable_get(:@payload)
+    end
+
     def to_hash
       @payload
     end
@@ -163,7 +180,7 @@ module OrangeData
     def add_position(text=nil, **options)
       pos = Position.new
       pos.text = text if text
-      options.each_pair{|k,v| pos.send(:"#{k}=", v) if pos.respond_to?(k) }
+      pos.assign_attributes(options)
       yield(pos) if block_given?
       positions << pos
       self
@@ -173,10 +190,14 @@ module OrangeData
       payment = Payment.new
       payment.type = type if type
       payment.amount = amount if amount
-      options.each_pair{|k,v| payment.send(:"#{k}=", v) if payment.respond_to?(k) }
+      payment.assign_attributes(options)
       yield(payment) if block_given?
       check_close.payments << payment
       self
+    end
+
+    def set_additional_user_attribute **options
+      @additional_user_attribute = AdditionalUserAttribute.new.assign_attributes(options)
     end
 
 
@@ -193,6 +214,16 @@ module OrangeData
           h["supplierInfo"] = supplier_info.to_hash if supplier_info
           h["agentInfo"] = agent_info.to_hash if agent_info
         }
+      end
+
+      def set_supplier_info **options
+        @supplier_info = SupplierInfo.new.assign_attributes(options)
+        self
+      end
+
+      def set_agent_info **options
+        @agent_info = AgentInfo.new.assign_attributes(options)
+        self
       end
 
       attr_reader :agent_info, :supplier_info
@@ -242,15 +273,7 @@ module OrangeData
       GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CheckPayment"])
     end
 
-    class AdditionalUserAttribute
-      def initialize payload={}
-        @payload = payload
-      end
-
-      def to_hash
-        @payload
-      end
-
+    class AdditionalUserAttribute < PayloadContent
       GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["AdditionalUserAttribute"])
     end
 
