@@ -700,43 +700,60 @@ definitions:
     type: object
     properties:
       id:
+        description: Идентификатор документа
         type: string
       deviceSN:
+        description: Заводской номер устройства пробившего чек
         type: string
       deviceRN:
+        description: Регистрационный номер устройства пробившего чек
         type: string
       fsNumber:
+        description: Номер фискального накопителя
         type: string
       ofdName:
+        description: Наименование ОФД
         type: string
       ofdWebsite:
+        description: Web-сайт ОФД
         type: string
       ofdinn:
+        description: ИНН ОФД
         type: string
       fnsWebsite:
+        description: Web-сайт ФНС
         type: string
       companyINN:
+        description: ИНН пользователя
         type: string
       companyName:
+        description: Наименование пользователя
         type: string
       documentNumber:
+        description: Номер ФД
         format: int64
         type: integer
       shiftNumber:
+        description: Номер смены
         format: int32
         type: integer
       documentIndex:
+        description: Номер чека за смену
         format: int32
         type: integer
       processedAt:
+        description: Время регистрации фискального документа в ФН, ISO8601
         format: date-time
         type: string
       content:
+        description: Содержимое документа
         "$ref": "#/definitions/CheckContent"
       change:
+        description: Сдача
         format: double
         type: number
       fp:
+        description: Фискальный признак
         type: string
 
 
@@ -746,40 +763,64 @@ definitions:
     properties:
       id:
         type: string
+        maxLength: 64
       deviceSN:
+        description: Заводской номер устройства пробившего чек
         type: string
+        maxLength: 20
       deviceRN:
+        description: Регистрационный номер устройства пробившего чек
         type: string
+        maxLength: 20
       fsNumber:
+        description: Номер фискального накопителя
         type: string
       ofdName:
+        description: Наименование ОФД
         type: string
+        maxLength: 256
       ofdWebsite:
+        description: Web-сайт ОФД
         type: string
       ofdinn:
+        description: ИНН ОФД
         type: string
       fnsWebsite:
+        description: Web-сайт ФНС
         type: string
+        maxLength: 256
       companyINN:
+        description: ИНН пользователя
         type: string
+        maxLength: 12
       companyName:
+        description: Наименование пользователя
         type: string
+        maxLength: 256
       documentNumber:
+        description: Номер ФД
+        type: integer
         format: int64
-        type: integer
       shiftNumber:
-        format: int32
+        description: Номер смены
         type: integer
+        format: int32
       documentIndex:
+        description: Номер чека за смену
         format: int32
         type: integer
       processedAt:
+        description: Время регистрации фискального документа в ФН, ISO8601
         format: date-time
         type: string
       content:
+        description: Содержимое документа
         "$ref": "#/definitions/CorrectionContent"
       change:
+        x-unknown: Сдача?
         format: double
         type: number
       fp:
+        description: Фискальный признак
         type: string
+        maxLength: 10
