@@ -319,10 +319,14 @@ definitions:
           other:
             val: 13
             description: Иной предмет расчета
-
       nomenclatureCode:
         description: Код товарной номенклатуры
-        x-comment: base64 массив, что внутри - пока не ясно
+        x-comment: |-
+          base64 строка
+          Данные в массиве представлены в виде строки, в которой:
+            первые 4 байта –код справочника;
+            последующие 8 байт – код группы товаров;
+            последние 20 байт – код идентификации товара
         x-tag-id: 1162
         type: string
         nullable: true
@@ -392,6 +396,7 @@ definitions:
         description: Акциз
         x-tag-id: 1229
         type: number
+
   CheckClose:
     type: object
     properties:
@@ -493,6 +498,8 @@ definitions:
         description: ИНН оператора перевода
         x-tag-id: 1016
         type: string
+
+
   CheckPayment:
     type: object
     properties:
@@ -536,7 +543,6 @@ definitions:
           type: string
 
 
-
   CheckDocumentCreate[CorrectionContent]:
     type: object
     x-todo: DRY CheckDocumentCreate[CheckContent] is exactly the same, but has different content field
@@ -551,6 +557,7 @@ definitions:
         type: string
       content:
         "$ref": "#/definitions/CorrectionContent"
+
 
   CorrectionContent:
     type: object
@@ -577,7 +584,6 @@ definitions:
           expense:
             val: 3
             description: Расход
-
       description:
         description: Описание коррекции
         x-tag-id: 1177
@@ -689,6 +695,7 @@ definitions:
             val: 5
             description: Патентная система налогообложения, Патент
 
+
   CheckStatusViewModel[CheckContent]:
     type: object
     properties:
@@ -732,7 +739,9 @@ definitions:
       fp:
         type: string
 
+
   CheckStatusViewModel[CorrectionContent]:
+    # x-todo: похоже это копипаст с чека, а на коррекцию должно же другое вернуться
     type: object
     properties:
       id:

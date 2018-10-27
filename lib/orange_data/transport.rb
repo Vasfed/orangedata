@@ -130,7 +130,7 @@ module OrangeData
     end
 
     def get_correction(inn, document_id)
-      get_entity "corrections/#{inn}/status/#{document_id}"
+      CorrectionResult.from_hash(get_entity("corrections/#{inn}/status/#{document_id}"))
     end
 
   end

@@ -98,6 +98,16 @@ RSpec.describe OrangeData::Receipt do
       end
     end
 
+    describe OrangeData::ReceiptResult do
+      subject{ described_class.new({})}
+      it "has all fields" do
+        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["CheckStatusViewModel[CheckContent]"]["properties"].keys.reject{|k|
+          subject.respond_to?(k.underscore)
+        }
+        expect(missing).to eq([])
+      end
+    end
+
   end
 
   describe "Creation and export" do

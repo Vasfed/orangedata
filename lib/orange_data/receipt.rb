@@ -283,11 +283,6 @@ module OrangeData
 
   end
 
-
-  class Correction < Document
-    # TODO: same as Receipt, but based on correctionType
-  end
-
   class ReceiptResult < PayloadContent
     def initialize payload
       @payload = payload
@@ -320,6 +315,41 @@ module OrangeData
         n: content.raw_type, #??
       }.map{|k, v| "#{k}=#{v}" }.join('&')
     end
+  end
+
+  # Correction
+
+  class Correction < Document
+    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil, content:nil)
+      @content = CorrectionContent.new(content || {})
+      super
+    end
+    PAYLOAD_SCHEMA["definitions"]["CorrectionContent"]["properties"]["type"]["x-enum"].each_pair do |slug, info|
+      define_singleton_method(slug) do |**args, &block|
+        new(**args, &block).tap{|doc|
+          doc.content.type = slug
+        }
+      end
+    end
+  end
+
+  class CorrectionContent < PayloadContent
+    GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CorrectionContent"])
+  end
+
+  class CorrectionResult < PayloadContent
+    def initialize payload
+      @payload = payload || {}
+      @content = CorrectionContent.new(@payload["content"] || {})
+    end
+
+    def self.from_hash(hash)
+      raise ArgumentError, 'Expect hash here' unless hash.is_a?(Hash)
+      new(hash)
+    end
+
+    attr_reader :content
+    GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CheckStatusViewModel[CheckContent]"])
   end
 
 end

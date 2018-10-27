@@ -165,8 +165,9 @@ RSpec.describe OrangeData::Transport do
 
     it "works" do
       stub_request(:get, "#{api_root}corrections/123/status/456").
-        to_return(status: 200, body:{some: 'resp'}.to_json, headers: { 'Content-type' => 'application/json' })
-      is_expected.to eq('some' => 'resp')
+        to_return(status: 200, body:{id: 'resp'}.to_json, headers: { 'Content-type' => 'application/json' })
+      is_expected.to be_a(OrangeData::CorrectionResult)
+      expect(subject.id).to eq('resp')
     end
   end
 
