@@ -621,6 +621,7 @@ definitions:
         x-tag-id: 1031
         type: number
       eCashSum:
+        x-todo: унифицировать с названиями в CheckPayment.type.x-enum
         format: double
         description: Сумма по чеку (БСО) электронными
         x-tag-id: 1081
@@ -643,32 +644,39 @@ definitions:
       tax1Sum:
         format: double
         description: Сумма НДС чека по ставке 18%
+        x-comment: осторожно, номера в названии поля не соответствуют значениям в CheckPosition.tax
         x-tag-id: 1102
+        x-alias: vat_18
         type: number
       tax2Sum:
         format: double
         description: Сумма НДС чека по ставке 10%
         x-tag-id: 1103
+        x-alias: vat_10
         type: number
       tax3Sum:
         format: double
         description: Сумма расчета по чеку с НДС по ставке 0%
         x-tag-id: 1104
+        x-alias: vat_0
         type: number
       tax4Sum:
         format: double
         description: Сумма расчета по чеку без НДС
         x-tag-id: 1105
+        x-alias: vat_not_charged
         type: number
       tax5Sum:
         format: double
         description: Сумма НДС чека по расч. ставке 18/118
         x-tag-id: 1106
+        x-alias: vat_18_118
         type: number
       tax6Sum:
         format: double
         description: Сумма НДС чека по расч. ставке 10/110
         x-tag-id: 1107
+        x-alias: vat_10_110
         type: number
       taxationSystem:
         type: integer
@@ -758,7 +766,6 @@ definitions:
 
 
   CheckStatusViewModel[CorrectionContent]:
-    # x-todo: похоже это копипаст с чека, а на коррекцию должно же другое вернуться
     type: object
     properties:
       id:

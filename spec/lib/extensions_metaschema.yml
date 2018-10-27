@@ -31,6 +31,11 @@ properties:
     description: Номер соответствующего полю тега в ФН
     type: integer
 
+  x-alias:
+    description: Создает alias этого поля
+    type: string
+    format: "[a-z][a-z_0-9]*"
+
   x-enum:
     description: Маппинг и описание значений поля
     type: object

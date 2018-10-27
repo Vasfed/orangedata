@@ -120,6 +120,11 @@ module OrangeData
         else
 
         end
+
+        if info["x-alias"]
+          # alias_method "#{info["x-alias"]}", property.underscore
+          alias_method "#{info["x-alias"]}=", "#{property.underscore}="
+        end
       end
     end
   end
