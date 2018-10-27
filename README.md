@@ -11,7 +11,7 @@ Note: This is a Work-in-progress. API might change in the future.
 Умеет:
 - собственно транспорт с подписью запросов
 - сгенерировать ключ сразу в нужном виде
-- планируется DSL для чеков
+- маппинг для данных генерируется на базе приведенного в человеческий вид официального json-schema-описания
 
 ## Установка
 
@@ -31,7 +31,10 @@ gem 'orangedata'
 
 ## Использование
 
-Для тестового окружения ключики в комплекте - [credentials_test.yml](lib/orange_data/credentials_test.yml), собрано из родного `File_for_test.zip`, доступны как `OrangeData::Credentials.default_test`
+Для тестового окружения ключики в комплекте - [credentials_test.yml](lib/orange_data/credentials_test.yml), собрано из родного `File_for_test.zip`, доступны как `OrangeData::Credentials.default_test`.
+Получение ключей для продакшна описано ниже.
+
+### Пробитие чека
 
 ```ruby
   transport = OrangeData::Transport.new("https://apip.orangedata.ru:2443/api/v2/", OrangeData::Credentials.default_test)
@@ -76,6 +79,36 @@ gem 'orangedata'
   res.qr_code_content
   # => "t=20181026T2021&s=50.0&fn=9999078900001341&i=3243&fp=301645583&n=1"
 ```
+
+### Чек коррекции
+Пока не понятно, почему в API не все значения поля tax соответствуют цифрам в `taxNSum`, поэтому коррекцию, видимо, лучше бить через саппорт или подобным образом.
+
+Но поддержка в маппинге есть:
+
+```ruby
+transport = OrangeData::Transport.new("https://apip.orangedata.ru:2443/api/v2/", OrangeData::Credentials.default_test)
+correction = OrangeData::Correction.income(inn:"123456789012", id:"12345678990"){|c|
+  c.correction_type = :prescribed
+  c.assign_attributes(
+    description: "НЕ ХОЧЕТСЯ НО НАДО",
+    cause_document_date: "2017-08-10T00:00:00", cause_document_number: "ФЗ-54",
+    total_sum: 17.25, cash_sum: 1.23, e_cash_sum: 2.34,
+    prepayment_sum: 5.67, postpayment_sum: 4.56, other_payment_type_sum: 3.45,
+
+    vat_18: 1.34, vat_10: 2.34, vat_0: 3.34,
+    vat_not_charged: 4.34, vat_18_118: 5.34, vat_10_110: 6.34,
+    taxation_system: :simplified,
+
+    automat_number: "123456789",
+    settlement_address: "г.Москва, Красная площадь, д.1",
+    settlement_place: "Палата No6",
+  )
+}
+transport.post_correction(correction)
+# wait some time
+res = transport.get_correction(correction.inn, correction.id)
+```
+
 
 ### Получаем сертификаты
 
