@@ -168,11 +168,9 @@ RSpec.describe OrangeData::Receipt do
 
       # puts JSON.pretty_generate(JSON.parse(json))
 
-      #parse back to get additional coverate:
+      #parse back to get additional coverage:
       parsed = OrangeData::ReceiptContent.new(JSON.parse(json)["content"])
-      expect(parsed).to be_a(OrangeData::ReceiptContent)
-      pending
-      expect(parsed).to eq(receipt.content)
+      expect(parsed).to be_a(OrangeData::ReceiptContent).and(eq(receipt.content))
     end
   end
 
