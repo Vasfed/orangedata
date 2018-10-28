@@ -2,9 +2,6 @@
 
 RSpec.describe OrangeData::Receipt do
 
-  using OrangeData::StringExt unless "".respond_to?(:underscore)
-
-
   describe OrangeData::ReceiptContent do
     describe "has fields" do
 
@@ -40,72 +37,36 @@ RSpec.describe OrangeData::Receipt do
         expect(subject.payment_transfer_operator_phone_numbers).to eq(["1234"])
       end
 
-      it "has all fields" do
-        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["CheckContent"]["properties"].keys.reject{|k|
-          subject.respond_to?(k.underscore)
-        }
-        expect(missing).to eq([])
-      end
-
       it "class method is protected" do
         expect{ described_class.generate_accessors_from_schema }.to raise_error(NoMethodError, /protected/)
       end
 
+      it{ is_expected.to have_attributes_from("CheckContent") }
     end
 
     describe OrangeData::ReceiptContent::Position do
-      it "has all fields" do
-        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["CheckPosition"]["properties"].keys.reject{|k|
-          subject.respond_to?(k.underscore)
-        }
-        expect(missing).to eq([])
-      end
+      it{ is_expected.to have_attributes_from("CheckPosition") }
     end
 
     describe OrangeData::ReceiptContent::AgentInfo do
-      it "has all fields" do
-        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["AgentInfo"]["properties"].keys.reject{|k|
-          subject.respond_to?(k.underscore)
-        }
-        expect(missing).to eq([])
-      end
+      it{ is_expected.to have_attributes_from("AgentInfo") }
     end
 
     describe OrangeData::ReceiptContent::SupplierInfo do
-      it "has all fields" do
-        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["SupplierInfo"]["properties"].keys.reject{|k|
-          subject.respond_to?(k.underscore)
-        }
-        expect(missing).to eq([])
-      end
+      it{ is_expected.to have_attributes_from("SupplierInfo") }
     end
 
     describe OrangeData::ReceiptContent::CheckClose do
-      it "has all fields" do
-        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["CheckClose"]["properties"].keys.reject{|k|
-          subject.respond_to?(k.underscore)
-        }
-        expect(missing).to eq([])
-      end
+      it{ is_expected.to have_attributes_from("CheckClose") }
     end
 
     describe OrangeData::ReceiptContent::Payment do
-      it "has all fields" do
-        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["CheckPayment"]["properties"].keys.reject{|k|
-          subject.respond_to?(k.underscore)
-        }
-        expect(missing).to eq([])
-      end
+      it{ is_expected.to have_attributes_from("CheckPayment") }
     end
 
     describe OrangeData::ReceiptResult do
       subject{ described_class.new({})}
-      it "has all fields" do
-        missing = OrangeData::PAYLOAD_SCHEMA["definitions"]["CheckStatusViewModel[CheckContent]"]["properties"].keys.reject{|k|
-          subject.respond_to?(k.underscore)
-        }
-        expect(missing).to eq([])
-      end
+      it{ is_expected.to have_attributes_from("CheckStatusViewModel[CheckContent]") }
     end
 
   end

@@ -3,6 +3,7 @@
 require 'bundler/setup'
 require 'webmock/rspec'
 require 'json-schema'
+require_relative "support/have_attributes_matcher"
 
 require 'simplecov'
 if RSpec.configuration.files_to_run.size > 1
