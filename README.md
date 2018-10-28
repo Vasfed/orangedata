@@ -92,8 +92,9 @@ correction = OrangeData::Correction.income(inn:"123456789012", id:"12345678990")
   c.assign_attributes(
     description: "НЕ ХОЧЕТСЯ НО НАДО",
     cause_document_date: "2017-08-10T00:00:00", cause_document_number: "ФЗ-54",
-    total_sum: 17.25, cash_sum: 1.23, e_cash_sum: 2.34,
-    prepayment_sum: 5.67, postpayment_sum: 4.56, other_payment_type_sum: 3.45,
+    total_sum: 17.25,
+    sum_cash: 1.23, sum_card: 2.34,
+    sum_prepaid: 5.67, sum_credit: 4.56, sum_counterclaim: 3.45,
 
     vat_18: 1.34, vat_10: 2.34, vat_0: 3.34,
     vat_not_charged: 4.34, vat_18_118: 5.34, vat_10_110: 6.34,

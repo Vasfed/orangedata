@@ -605,38 +605,45 @@ definitions:
         type: number
       automatNumber:
         description: Номер автомата
+        x-comment: Только для вендинга
         x-tag-id: 1036
         type: string
       settlementAddress:
         description: Адрес расчетов
+        x-comment: Только для вендинга
         x-tag-id: 1009
         type: string
       settlementPlace:
         description: Место расчетов
+        x-comment: Только для вендинга
         x-tag-id: 1187
         type: string
       cashSum:
+        x-name: sum_cash
         format: double
         description: Сумма по чеку (БСО) наличными
         x-tag-id: 1031
         type: number
       eCashSum:
-        x-todo: унифицировать с названиями в CheckPayment.type.x-enum
+        x-name: sum_card
         format: double
         description: Сумма по чеку (БСО) электронными
         x-tag-id: 1081
         type: number
       prepaymentSum:
+        x-name: sum_prepaid
         format: double
         description: Сумма по чеку (БСО) предоплатой (зачетом аванса и (или) предыдущих платежей)
         x-tag-id: 1215
         type: number
       postpaymentSum:
+        x-name: sum_credit
         format: double
         description: Сумма по чеку (БСО) постоплатой (в кредит)
         x-tag-id: 1216
         type: number
       otherPaymentTypeSum:
+        x-name: sum_counterclaim
         format: double
         description: Сумма по чеку (БСО) встречным предоставлением
         x-tag-id: 1217
