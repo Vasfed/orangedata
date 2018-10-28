@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rspec/expectations'
 
 RSpec::Matchers.define :have_attributes_from do |expected|
@@ -5,7 +7,7 @@ RSpec::Matchers.define :have_attributes_from do |expected|
 
   match do |actual|
     schema = OrangeData::PAYLOAD_SCHEMA["definitions"][expected]["properties"]
-    expected_attributes = schema.map{|k,v| v["x-name"] || k.underscore }
+    expected_attributes = schema.map{|k, v| v["x-name"] || k.underscore }
     @missing = expected_attributes.reject{|k| actual.respond_to?(k) }
     # TODO: check setters?
     @missing_setters = [] # expected_attributes.reject{|k| actual.respond_to?("#{k}=") }

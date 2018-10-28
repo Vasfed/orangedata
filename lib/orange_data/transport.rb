@@ -73,7 +73,7 @@ module OrangeData
       when 409
         raise "Conflict"
       when 400
-        raise "Invalid doc: #{res.body["errors"] || res.body}"
+        raise "Invalid doc: #{res.body['errors'] || res.body}"
       when 503
         if res.headers['Retry-After']
           raise "Document queue full, retry in #{res.headers['Retry-After']}"
@@ -89,7 +89,7 @@ module OrangeData
       when 200
         return res.body
       when 400
-        raise "Cannot get doc: #{res.body["errors"] || res.body}"
+        raise "Cannot get doc: #{res.body['errors'] || res.body}"
       when 401
         raise 'Unauthorized'
       end

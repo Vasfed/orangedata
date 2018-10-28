@@ -65,7 +65,7 @@ RSpec.describe OrangeData::Receipt do
     end
 
     describe OrangeData::ReceiptResult do
-      subject{ described_class.new({})}
+      subject{ described_class.new({}) }
       it{ is_expected.to have_attributes_from("CheckStatusViewModel[CheckContent]") }
     end
 
@@ -129,7 +129,7 @@ RSpec.describe OrangeData::Receipt do
 
       # puts JSON.pretty_generate(JSON.parse(json))
 
-      #parse back to get additional coverage:
+      # parse back to get additional coverage:
       parsed = OrangeData::ReceiptContent.new(JSON.parse(json)["content"])
       expect(parsed).to be_a(OrangeData::ReceiptContent).and(eq(receipt.content))
     end

@@ -11,16 +11,24 @@ Gemspec/RequiredRubyVersion:
 
 Metrics/LineLength:
   Max: 120
+  Exclude:
+    - 'spec/**/*'
 
 Metrics/BlockLength:
+  Enabled: false
   Exclude:
     - 'spec/**/*'
 
 Metrics/MethodLength:
   Max: 20
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
 
 Metrics/AbcSize:
-  Max: 50
+  # Max: 50
+  Enabled: false
 
 Metrics/CyclomaticComplexity:
   Max: 50
@@ -64,8 +72,30 @@ Layout/EmptyLinesAroundClassBody:
   Enabled: false
   # EnforcedStyle: empty_lines_except_namespace
 
+Layout/DotPosition:
+  # so that code can be copied to console
+  EnforcedStyle: trailing
+
+Layout/IndentHash:
+  EnforcedStyle: consistent
+
+Layout/EmptyLines:
+  Enabled: false
+
 Style/AsciiComments:
   Enabled: false
 
+Style/Documentation:
+  # TODO
+  Enabled: false
+
+Style/BlockDelimiters:
+  Enabled: false
+  Exclude:
+    - 'spec/**/*'
+
+# trailing commas make simpler diffs
 Style/TrailingCommaInHashLiteral:
+  Enabled: false
+Style/TrailingCommaInArrayLiteral:
   Enabled: false

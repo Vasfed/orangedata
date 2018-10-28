@@ -67,17 +67,17 @@ RSpec.describe OrangeData::Transport do
 
     context "when not valid" do
       let(:response){ { status: 400, body: '{"errors":["Some error"]}', headers: { 'Content-type' => 'application/json' } } }
-      it { is_expected.to eq(["Some error"]) }
+      it{ is_expected.to eq(["Some error"]) }
     end
 
     context "when not authorized" do
       let(:response){ { status: 401 } }
-      it { expect{ subject }.to raise_error(/Unauthorized/) }
+      it{ expect{ subject }.to raise_error(/Unauthorized/) }
     end
 
     context "when 500" do
       let(:response){ { status: 500 } }
-      it { expect{ subject }.to raise_error(/Unexpected/) }
+      it{ expect{ subject }.to raise_error(/Unexpected/) }
     end
   end
 
@@ -101,7 +101,7 @@ RSpec.describe OrangeData::Transport do
 
     context "when invalid doc" do
       let(:resp_status){ 400 }
-      let(:resp_body){ { errors: ["blablabla"]} }
+      let(:resp_body){ { errors: ["blablabla"] } }
       it{ expect{ subject }.to raise_error(/blablabla/) }
     end
 
@@ -136,7 +136,7 @@ RSpec.describe OrangeData::Transport do
     let(:inn){ 123 }
     let(:doc_id){ 456 }
     subject{ transport.get_document inn, doc_id }
-    let(:resp_body){ {id: 'resp'} }
+    let(:resp_body){ { id: 'resp' } }
     let(:resp_status){ 200 }
     before do
       stub_request(:get, "#{api_root}documents/123/status/456").
@@ -148,7 +148,7 @@ RSpec.describe OrangeData::Transport do
     end
 
     context "when error" do
-      let(:resp_status){ 400 }; let(:resp_body){ { errors:["somefailhere"]} }
+      let(:resp_status){ 400 }; let(:resp_body){ { errors:["somefailhere"] } }
       it{ expect{ subject }.to raise_error(/somefailhere/) }
     end
 
@@ -165,7 +165,7 @@ RSpec.describe OrangeData::Transport do
 
     it "works" do
       stub_request(:get, "#{api_root}corrections/123/status/456").
-        to_return(status: 200, body:{id: 'resp'}.to_json, headers: { 'Content-type' => 'application/json' })
+        to_return(status: 200, body:{ id: 'resp' }.to_json, headers: { 'Content-type' => 'application/json' })
       is_expected.to be_a(OrangeData::CorrectionResult)
       expect(subject.id).to eq('resp')
     end

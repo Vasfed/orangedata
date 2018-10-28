@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe 'KeyEncoding for RSA key' do
   using OrangeData::Credentials::KeyEncoding
   let(:described_class){ OpenSSL::PKey::RSA }

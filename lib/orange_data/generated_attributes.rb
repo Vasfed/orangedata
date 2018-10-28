@@ -11,10 +11,10 @@ module OrangeData
       refine String do
         def underscore
           self.gsub(/::/, '/').
-          gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-          gsub(/([a-z\d])([A-Z])/,'\1_\2').
-          tr("-", "_").
-          downcase
+            gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
+            gsub(/([a-z\d])([A-Z])/, '\1_\2').
+            tr("-", "_").
+            downcase
         end
       end
     end
@@ -22,7 +22,7 @@ module OrangeData
   end
 
   module GeneratedAttributes
-    def self.from_schema klass, schema
+    def self.from_schema(klass, schema)
       klass.class_eval{
         extend GeneratedAttributes
         generate_accessors_from_schema(schema)
@@ -30,33 +30,36 @@ module OrangeData
     end
 
     protected
-    def generate_accessors_from_schema schema
+    def generate_accessors_from_schema(schema)
       plain_types = %w[integer string number]
       schema["properties"].each_pair do |property, info|
         property_name = info["x-name"] || property.underscore
 
         if plain_types.include?(info["type"])
           if info["x-enum"]
-            inverse_map = info["x-enum"].map{|k,v| [v['val'], k.to_sym]}.to_h
+            inverse_map = info["x-enum"].map{|k, v| [v['val'], k.to_sym] }.to_h
             define_method(property_name){
               return nil if @payload[property].nil?
-              inverse_map[@payload[property]] || "unknown value #{@payload[property].inspect} for field #{property}"
+              inverse_map[@payload[property]] ||
+                raise("unknown value #{@payload[property].inspect} for field #{property}")
             }
             define_method(:"#{property_name}="){|val|
               unless val.nil?
-                val = (info["x-enum"][val.to_s] || raise(ArgumentError, "unknown value #{val.inspect} for property #{property}"))["val"]
+                val = (info["x-enum"][val.to_s] ||
+                  raise(ArgumentError, "unknown value #{val.inspect} for property #{property}")
+                )["val"]
               end
               @payload[property] = val
             }
 
           elsif info["x-bitfield"]
-            bitmap = info["x-bitfield"].map{|k,v| [k.to_sym, 1 << v['bit']]}.to_h
+            bitmap = info["x-bitfield"].map{|k, v| [k.to_sym, 1 << v['bit']] }.to_h
             # TODO: return wrapper so that :<< etc will work
             define_method(property_name){
               return nil if @payload[property].nil?
               data = @payload[property].to_i
               # FIXME: unknown bits will be silently lost
-              bitmap.reject{|_,v| (data & v).zero? }.map(&:first)
+              bitmap.reject{|_, v| (data & v).zero? }.map(&:first)
             }
             define_method(:"#{property_name}="){|val|
               unless val.nil?
@@ -85,8 +88,8 @@ module OrangeData
         end
 
         if info["x-alias"]
-          alias_method "#{info["x-alias"]}", property_name
-          alias_method "#{info["x-alias"]}=", "#{property_name}="
+          alias_method "#{info['x-alias']}", property_name
+          alias_method "#{info['x-alias']}=", "#{property_name}="
         end
       end
     end
@@ -94,12 +97,12 @@ module OrangeData
 
   # base class for semi-generated classes
   class PayloadContent
-    def initialize payload={}
+    def initialize(payload={})
       @payload = payload
     end
 
-    def assign_attributes options
-      options.each_pair{|k,v|
+    def assign_attributes(options)
+      options.each_pair{|k, v|
         setter = :"#{k}="
         send(setter, v)
       }
@@ -109,7 +112,7 @@ module OrangeData
 
     def ==(other)
       self.class == other.class && to_hash == other.to_hash
-      #@payload == other.instance_variable_get(:@payload)
+      # @payload == other.instance_variable_get(:@payload)
     end
 
     def to_hash

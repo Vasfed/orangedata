@@ -33,7 +33,7 @@ RSpec.describe OrangeData::Credentials do
     it "export to hash" do
       expect(subject.to_hash(key_pass:false)).to eq short_credentials_hash
       expect(subject.signature_public_xml).to eq '<RSAKeyValue><Modulus>6PA+veZ0WKLyB48DfrPyCbYYe9JNvbzoHckF3AlTLSsylVHjZu4ebWGBgNVtV52HZfOkYALPR5z0SLiq0DRL3Q==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>'
-      expect(subject.inspect).to match %r{#<OrangeData::Credentials:[0-9a-fx]+ title="Test minimal credentials" key_name="1234567890" certificate="Orangedata test client">}
+      expect(subject.inspect).to match(/#<OrangeData::Credentials:[0-9a-fx]+ title="Test minimal credentials" key_name="1234567890" certificate="Orangedata test client">/)
     end
 
     it "to_yaml" do

@@ -12,8 +12,9 @@ RSpec.describe 'OrangeData' do
         "content"=>{
           "customer"=>"Иван Иваныч",
           "type"=>1,
-          "positions"=>[{"text"=>"Спички", "price"=>12.34, "tax"=>6}],
-          "checkClose"=>{"payments"=>[{"type"=>1, "amount"=>50}]}},
+          "positions"=>[{ "text"=>"Спички", "price"=>12.34, "tax"=>6 }],
+          "checkClose"=>{ "payments"=>[{ "type"=>1, "amount"=>50 }] }
+        },
         "key"=>"1234567890"
       }.to_json
     }
@@ -34,8 +35,8 @@ RSpec.describe 'OrangeData' do
         "documentIndex"=>7062, "processedAt"=>"2018-10-26T20:21:00",
         "content"=>{
           "type"=>1,
-          "positions"=>[{"price"=>12.34, "tax"=>6, "text"=>"Спички"}],
-          "checkClose"=>{"payments"=>[{"type"=>1, "amount"=>50.0}], "taxationSystem"=>0},
+          "positions"=>[{ "price"=>12.34, "tax"=>6, "text"=>"Спички" }],
+          "checkClose"=>{ "payments"=>[{ "type"=>1, "amount"=>50.0 }], "taxationSystem"=>0 },
           "customer"=>"Иван Иваныч"
         },
         "change"=>37.66,
@@ -44,21 +45,22 @@ RSpec.describe 'OrangeData' do
     }
     let!(:document_post_request) do
       stub_request(:post, "https://apip.orangedata.ru:2443/api/v2/documents").
-      with(
-        body: expected_body,
-        headers: {
-       	  'Accept'=>'application/json',
-       	  'Content-Type'=>'application/json',
-       	  'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
-       	  'X-Signature'=>Base64.strict_encode64(
-            OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
-          )
-        }).to_return(status: 201, body: "", headers: {})
+        with(
+          body: expected_body,
+          headers: {
+            'Accept'=>'application/json',
+            'Content-Type'=>'application/json',
+            'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
+            'X-Signature'=>Base64.strict_encode64(
+              OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
+            )
+          }
+        ).to_return(status: 201, body: "", headers: {})
     end
 
     let!(:document_get_request){
       stub_request(:get, "https://apip.orangedata.ru:2443/api/v2/documents/1234567890/status/50152258-a9aa-4d19-9216-5a3eecec7241").
-        with(headers:{'Accept'=>'application/json'}).
+        with(headers:{ 'Accept'=>'application/json' }).
         to_return(status: 200, body: result_body, headers: { 'Content-type' => 'application/json' })
     }
 
@@ -156,21 +158,22 @@ RSpec.describe 'OrangeData' do
 
     let!(:document_post_request) do
       stub_request(:post, "https://apip.orangedata.ru:2443/api/v2/corrections").
-      with(
-        body: expected_body,
-        headers: {
-          'Accept'=>'application/json',
-          'Content-Type'=>'application/json',
-          'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
-          'X-Signature'=>Base64.strict_encode64(
-            OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
-          )
-        }).to_return(status: 201, body: "", headers: {})
+        with(
+          body: expected_body,
+          headers: {
+            'Accept'=>'application/json',
+            'Content-Type'=>'application/json',
+            'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
+            'X-Signature'=>Base64.strict_encode64(
+              OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
+            )
+          }
+        ).to_return(status: 201, body: "", headers: {})
     end
 
     let!(:document_get_request){
       stub_request(:get, "https://apip.orangedata.ru:2443/api/v2/corrections/123456789012/status/12345678990").
-        with(headers:{'Accept'=>'application/json'}).
+        with(headers:{ 'Accept'=>'application/json' }).
         to_return(status: 200, body: result_body, headers: { 'Content-type' => 'application/json' })
     }
 
@@ -196,7 +199,7 @@ RSpec.describe 'OrangeData' do
           taxation_system: :simplified,
           automat_number: "123456789",
           settlement_address: "г.Москва, Красная площадь, д.1",
-          settlement_place: "Палата No6",
+          settlement_place: "Палата No6"
         )
       }
       transport.post_correction(correction)

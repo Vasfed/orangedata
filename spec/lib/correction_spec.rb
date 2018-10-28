@@ -7,7 +7,7 @@ RSpec.describe OrangeData::Correction do
   end
 
   describe OrangeData::CorrectionResult do
-    subject{ described_class.new({})}
+    subject{ described_class.new({}) }
     it{ is_expected.to have_attributes_from("CheckStatusViewModel[CorrectionContent]") }
   end
 

@@ -38,7 +38,7 @@ module OrangeData
       @content = ReceiptContent.new(content || {})
       super
     end
-    PAYLOAD_SCHEMA["definitions"]["CheckContent"]["properties"]["type"]["x-enum"].each_pair do |slug, info|
+    PAYLOAD_SCHEMA["definitions"]["CheckContent"]["properties"]["type"]["x-enum"].each_pair do |slug, _info|
       define_singleton_method(slug) do |**args, &block|
         new(**args, &block).tap{|doc|
           doc.content.type = slug
@@ -48,7 +48,7 @@ module OrangeData
   end
 
   class ReceiptContent < PayloadContent
-    def initialize payload={}
+    def initialize(payload={})
       @payload = payload || {}
       # TODO: import...
       # TODO: taxationSystem default in checkclose
@@ -91,14 +91,14 @@ module OrangeData
       self
     end
 
-    def set_additional_user_attribute **options
+    def set_additional_user_attribute(**options)
       @additional_user_attribute = AdditionalUserAttribute.new.assign_attributes(options)
     end
 
 
 
     class Position < PayloadContent
-      def initialize payload={}
+      def initialize(payload={})
         @payload = payload
         @supplier_info = SupplierInfo.new(@payload['supplierInfo']) if @payload['supplierInfo']
         @agent_info = AgentInfo.new(@payload['agentInfo']) if @payload['agentInfo']
@@ -111,12 +111,12 @@ module OrangeData
         }
       end
 
-      def set_supplier_info **options
+      def set_supplier_info(**options)
         @supplier_info = SupplierInfo.new.assign_attributes(options)
         self
       end
 
-      def set_agent_info **options
+      def set_agent_info(**options)
         @agent_info = AgentInfo.new.assign_attributes(options)
         self
       end
@@ -127,30 +127,18 @@ module OrangeData
     end
 
     class AgentInfo < PayloadContent
-      def initialize payload={}
-        @payload = payload
-      end
-      def to_hash
-        @payload
-      end
       GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["AgentInfo"])
     end
 
     class SupplierInfo < PayloadContent
-      def initialize payload={}
-        @payload = payload
-      end
-      def to_hash
-        @payload
-      end
       GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["SupplierInfo"])
     end
 
     class CheckClose < PayloadContent
-      def initialize payload={}
+      def initialize(payload={})
         payload ||= {}
         @payload = payload
-        @payments = (payload['payments'] || []).map{|p| Payment.new(p)}
+        @payments = (payload['payments'] || []).map{|p| Payment.new(p) }
       end
 
       def to_hash
@@ -179,7 +167,7 @@ module OrangeData
   end
 
   class ReceiptResult < PayloadContent
-    def initialize payload
+    def initialize(payload)
       @payload = payload
       @content = ReceiptContent.new(@payload["content"])
     end
@@ -193,13 +181,12 @@ module OrangeData
     GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CheckStatusViewModel[CheckContent]"])
 
     def qr_code_content
-      #  С живого чека:  t=20180518T220500&s=975.88&fn=8710000101125654&i=99456&fp=1250448795&n=1
       # Пример: t=20150720T1638&s=9999999.00&fn=000110000105&i=12345678&fp=123456&n=2
       {
         # - t=<date/time - дата и время осуществления расчета в формате ГГГГММДДТЧЧММ>
-        t: self.processed_at.gsub(/:\d{2}\z/, '').gsub(/[^0-9T]/, ''),
+        t: processed_at.gsub(/:\d{2}\z/, '').gsub(/[^0-9T]/, ''),
         # - s=<сумма расчета в рублях и копейках, разделенных точкой>
-        s: content.check_close.payments.inject(0.0){|d, p| d + p.amount},
+        s: content.check_close.payments.inject(0.0){|d, p| d + p.amount },
         # - fn=<заводской номер фискального накопителя>
         fn: fs_number,
         # - i=<порядковый номер фискального документа, нулями не дополняется>
@@ -207,7 +194,7 @@ module OrangeData
         # - fp=<фискальный признак документа, нулями не дополняется>
         fp: fp,
         # - n=<признак расчета>.
-        n: content.raw_type, #??
+        n: content.raw_type,
       }.map{|k, v| "#{k}=#{v}" }.join('&')
     end
   end
@@ -219,7 +206,7 @@ module OrangeData
       @content = CorrectionContent.new(content || {})
       super
     end
-    PAYLOAD_SCHEMA["definitions"]["CorrectionContent"]["properties"]["type"]["x-enum"].each_pair do |slug, info|
+    PAYLOAD_SCHEMA["definitions"]["CorrectionContent"]["properties"]["type"]["x-enum"].each_pair do |slug, _info|
       define_singleton_method(slug) do |**args, &block|
         new(**args, &block).tap{|doc|
           doc.content.type = slug
@@ -233,7 +220,7 @@ module OrangeData
   end
 
   class CorrectionResult < PayloadContent
-    def initialize payload
+    def initialize(payload)
       @payload = payload || {}
       @content = CorrectionContent.new(@payload["content"] || {})
     end
