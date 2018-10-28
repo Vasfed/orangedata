@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    orangedata (0.0.5)
+    orangedata (0.0.6)
       faraday (>= 0.15)
       faraday_middleware
 
@@ -80,4 +80,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   1.16.6
+   1.17.1
