@@ -1,6 +1,7 @@
 # Orangedata Client
 
 [![Gem Version](https://badge.fury.io/rb/orangedata.svg)](https://badge.fury.io/rb/orangedata)
+![Gem downloads](https://img.shields.io/gem/dt/orangedata.svg)
 [![Build Status](https://travis-ci.org/Vasfed/orangedata.svg?branch=master)](https://travis-ci.org/Vasfed/orangedata)
 
 A ruby client for orangedata.ru service.
