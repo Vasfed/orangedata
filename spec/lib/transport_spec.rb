@@ -83,26 +83,51 @@ RSpec.describe OrangeData::Transport do
 
   describe "post document" do
     let(:document){ { some: 'data' } }
-    subject{ transport.post_document document }
+    let(:raise_errors){ true }
+    subject{ transport.post_document document, raise_errors:raise_errors }
     let(:resp_status){ 201 }
     let(:resp_body){ nil }
     let(:resp_headers){ { 'Content-type' => 'application/json' } }
     before do
       stub_request(:post, "#{api_root}documents").
-        with(body: "{\"some\":\"data\"}").to_return(status: resp_status, body: resp_body&.to_json, headers: resp_headers)
+        with(body: "{\"some\":\"data\"}").
+        to_return(status: resp_status, body: resp_body&.to_json, headers: resp_headers)
     end
 
-    it{ is_expected.to be_truthy }
+    it do
+      is_expected.to be_truthy.and(be_a(OrangeData::Transport::IntermediateResult))
+      is_expected.to be_success
+    end
+
+    it "chained result" do
+      expect(transport).to receive(:get_document)
+      subject.get_result
+    end
 
     context "when conflict" do
       let(:resp_status){ 409 }
       it{ expect{ subject }.to raise_error(/Conflict/) }
+
+      context "when not raising" do
+        let(:raise_errors){ false }
+        it{ is_expected.not_to be_success }
+        it{ is_expected.not_to be_should_retry }
+      end
     end
 
     context "when invalid doc" do
       let(:resp_status){ 400 }
       let(:resp_body){ { errors: ["blablabla"] } }
       it{ expect{ subject }.to raise_error(/blablabla/) }
+
+      context "when not raising" do
+        let(:raise_errors){ false }
+        it{ is_expected.not_to be_success }
+        it do
+          is_expected.not_to be_should_retry
+          expect(subject.errors).to eq(["blablabla"])
+        end
+      end
     end
 
     context "when queue full" do
@@ -111,22 +136,50 @@ RSpec.describe OrangeData::Transport do
       it{
         expect{ subject }.to raise_error(/Retry/i)
       }
+
+      context "when not raising" do
+        let(:raise_errors){ false }
+        it{ is_expected.not_to be_success }
+        it{
+          is_expected.to be_should_retry
+          expect(subject.retry_in).to eq(5)
+        }
+        it "can be retried" do
+          stub_request(:post, "#{api_root}documents").
+            with(body: "{\"some\":\"data\"}").
+            to_return(status: 503).
+            to_return(status: 201)
+
+          expect(subject.retry).to be_success
+        end
+      end
     end
 
     context "when other error on server" do
       let(:resp_status){ 500 }
       it{ expect{ subject }.to raise_error(/Unknown/) }
+
+      context "when not raising" do
+        let(:raise_errors){ false }
+        it{ is_expected.not_to be_success }
+        it{ is_expected.to be_should_retry }
+      end
     end
   end
 
   describe "post correction" do
     let(:document){ { some: 'data' } }
     subject{ transport.post_correction document }
-
-    it "works" do
+    before do
       stub_request(:post, "#{api_root}corrections").
         with(body: "{\"some\":\"data\"}").to_return(status: 201)
-      is_expected.to be_truthy
+    end
+
+    it{ is_expected.to be_success }
+
+    it "chained result" do
+      expect(transport).to receive(:get_correction)
+      subject.get_result
     end
 
     # shares inplementation with post_document, so no need to test separately

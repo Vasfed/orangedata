@@ -64,22 +64,79 @@ module OrangeData
       }
     end
 
-    def post_entity(sub_url, data)
+    class IntermediateResult
+      def initialize(
+        success:false, sub_url:nil, data:data,
+        attempt_retry:false, retry_in:nil, retry_count:0, transport:nil,
+        errors:nil
+      )
+        @success = success
+        @sub_url = sub_url
+        @data = data
+        @attempt_retry = attempt_retry
+        @retry_in = retry_in
+        @retry_count = retry_count
+        @transport = transport
+        @errors = errors
+      end
+
+      attr_reader :retry_in, :errors, :retry_count
+
+      def success?
+        @success == true
+      end
+
+      def should_retry?
+        @attempt_retry || false
+      end
+
+      def retry
+        raise "not-retriable" unless should_retry?
+        @transport.post_entity(@sub_url, @data, raise_errors:false, result_class:self.class, retry_count:(retry_count + 1))
+      end
+
+      protected
+      def get_result_with get_method
+        raise "Non-success" unless success?
+        @transport.send(get_method,
+          @data.respond_to?(:inn) && @data.inn || @data[:inn] || @data["inn"],
+          @data.respond_to?(:id) && @data.id || @data[:id] || @data["id"],
+        )
+      end
+    end
+
+    class ReceiptIntermediateResult < IntermediateResult
+      def get_result
+        get_result_with(:get_document)
+      end
+    end
+
+    class CorrectionIntermediateResult < IntermediateResult
+      def get_result
+        get_result_with(:get_correction)
+      end
+    end
+
+    def post_entity(sub_url, data, raise_errors:true, result_class:IntermediateResult, retry_count:0)
       res = post_request(sub_url, data)
 
       case res.status
       when 201
-        return true
+        return result_class.new(success: true, data:data, sub_url:sub_url, retry_count:0, transport:self)
       when 409
-        raise "Conflict"
+        raise "Conflict" if raise_errors
+        return result_class.new(data:data, sub_url:sub_url, errors:["Duplicate id"], retry_count:0)
       when 400
-        raise "Invalid doc: #{res.body['errors'] || res.body}"
+        raise "Invalid doc: #{res.body['errors'] || res.body}" if raise_errors
+        return result_class.new(data:data, sub_url:sub_url, errors:res.body['errors'], retry_count:0)
       when 503
         if res.headers['Retry-After']
-          raise "Document queue full, retry in #{res.headers['Retry-After']}"
+          raise "Document queue full, retry in #{res.headers['Retry-After']}" if raise_errors
+          return result_class.new(attempt_retry:true, retry_in:res.headers['Retry-After'].to_i, data:data, sub_url:sub_url, retry_count:0, transport:self)
         end
       end
-      raise "Unknown code from OD: #{res.status} #{res.reason_phrase} #{res.body}"
+      raise "Unknown code from OD: #{res.status} #{res.reason_phrase} #{res.body}" if raise_errors
+      result_class.new(attempt_retry:true, data:data, sub_url:sub_url, retry_count:0, transport:self)
     end
 
     def get_entity(sub_url)
@@ -117,16 +174,16 @@ module OrangeData
       end
     end
 
-    def post_document(data)
-      post_entity 'documents', data
+    def post_document(data, raise_errors:true)
+      post_entity 'documents', data, raise_errors:raise_errors, result_class:ReceiptIntermediateResult
     end
 
     def get_document(inn, document_id)
       ReceiptResult.from_hash(get_entity("documents/#{inn}/status/#{document_id}"))
     end
 
-    def post_correction(data)
-      post_entity 'corrections', data
+    def post_correction(data, raise_errors:true)
+      post_entity 'corrections', data, raise_errors:raise_errors, result_class:CorrectionIntermediateResult
     end
 
     def get_correction(inn, document_id)
