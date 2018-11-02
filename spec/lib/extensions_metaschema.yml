@@ -53,6 +53,9 @@ properties:
       properties:
         val:
           description: значение, должно быть уникальным
+        title:
+          description: Название значения
+          type: string
         description:
           description: Описание значения
           type: string
@@ -72,6 +75,9 @@ properties:
       properties:
         bit:
           description: Номер бита, должен быть уникальным в пределах этого описания поля
+        title:
+          type: string
+          description: Название значения
         description:
           type: string
           description: Описание значения
