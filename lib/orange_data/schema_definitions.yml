@@ -86,6 +86,7 @@ definitions:
         description: |-
           Битовое поле, где номер бита обозначает,
           что оказывающий услугу покупателю (клиенту) пользователь является
+          соответствующим агентом
         x-comment: |-
           Кассовый чек(БСО) может содержать реквизиты «признак агента» (тег 1057),
           только если отчет о регистрации и(или) текущий отчет о перерегистрации
@@ -96,32 +97,43 @@ definitions:
           bank_agent:
             bit: 0
             title: банковский платежный агент
+            print: БАНК. ПЛ. АГЕНТ
           bank_subagent:
             bit: 1
             title: банковский платежный субагент
+            print: БАНК. ПЛ. СУБАГЕНТ
           payment_agent:
             bit: 2
             title: платежный агент
+            print: ПЛ. АГЕНТ
           payment_subagent:
             bit: 3
             title: платежный субагент
+            print: ПЛ. СУБАГЕНТ
           attorney:
             bit: 4
             title: поверенный
+            print: ПОВЕРЕННЫЙ
           comissioner:
             bit: 5
             title: комиссионер
+            print: КОМИССИОНЕР
           other:
             bit: 6
             title: иной агент
+            print: АГЕНТ
+
+      #DRY: AgentInfo один-в-один, тут они указываются если одинаковы для всех позиций
       paymentTransferOperatorPhoneNumbers:
         title: Телефон оператора перевода
         x-tag-id: 1075
+        x-todo: Тут поля из AgentInfo as-is, разобраться и мб DRY
         type: array
         items:
           type: string
       paymentAgentOperation:
         title: Операция платежного агента
+        description: наименование операции банковского платежного агента или банковского платежного субагента
         x-tag-id: 1044
         type: string
       paymentAgentPhoneNumbers:
@@ -148,6 +160,8 @@ definitions:
         title: ИНН оператора перевода
         x-tag-id: 1016
         type: string
+      # / AgentInfo
+
       supplierPhoneNumbers:
         title: Телефон поставщика
         x-tag-id: 1171
@@ -160,6 +174,10 @@ definitions:
         x-tag-id: 1084
       automatNumber:
         title: Номер автомата
+        description: |-
+          должен входить в состав кассового чека (БСО) при применении ККТ в автоматическом устройстве для расчетов
+          и может не включаться в состав кассового чека (БСО) при передаче кассового чека (БСО) ОФД в электронной форме в случае,
+          если указанный реквизит был передан ОФД ранее в составе отчета о регистрации или отчета об изменении параметров регистрации
         x-tag-id: 1036
         type: string
       settlementAddress:
@@ -484,6 +502,7 @@ definitions:
           type: string
       paymentAgentOperation:
         title: Операция платежного агента
+        description: наименование операции банковского платежного агента или банковского платежного субагента
         x-tag-id: 1044
         type: string
       paymentAgentPhoneNumbers:

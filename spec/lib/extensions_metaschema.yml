@@ -78,6 +78,9 @@ properties:
         title:
           type: string
           description: Название значения
+        print:
+          type: string
+          description: Название значения для вывода пользователям/печати в чек
         description:
           type: string
           description: Описание значения
