@@ -190,6 +190,7 @@ definitions:
         type: string
       additionalAttribute:
         title: Дополнительный реквизит чека (БСО)
+        description: определяется ФНС
         x-tag-id: 1192
         type: string
       customer:
@@ -409,6 +410,7 @@ definitions:
         type: string
       additionalAttribute:
         title: Дополнительный реквизит предмета расчета
+        description: определяется ФНС
         x-tag-id: 1191
         type: string
       manufacturerCountryCode:
@@ -441,21 +443,27 @@ definitions:
           common:
             val: 0
             title: Общая, ОСН
+            print: ОСН
           simplified:
             val: 1
             title: Упрощенная доход, УСН доход
+            print: УСН доход
           simplified_difference:
             val: 2
             title: Упрощенная доход минус расход, УСН доход - расход
+            print: УСН доход - расход
           envd:
             val: 3
             title: Единый налог на вмененный доход, ЕНВД
+            print: ЕНВД
           esn:
             val: 4
             title: Единый сельскохозяйственный налог, ЕСН
+            print: ЕСН
           patent:
             val: 5
             title: Патентная система налогообложения, Патент
+            print: Патент
 
   AdditionalUserAttribute:
     title: Дополнительный реквизит пользователя
@@ -480,12 +488,14 @@ definitions:
     properties:
       phoneNumbers:
         title: Телефон поставщика
+        description: можно не указывать, если совпадает с 1171 в самом чеке
         x-tag-id: 1171
         type: array
         items:
           type: string
       name:
         title: Наименование поставщика
+        description: получатель средств для платежных агентов, принципал для агентов
         x-tag-id: 1225
         type: string
 
@@ -496,6 +506,7 @@ definitions:
     properties:
       paymentTransferOperatorPhoneNumbers:
         title: Телефон оператора перевода
+        description: Для оператора по переводу денежных средств
         x-tag-id: 1075
         type: array
         items:
@@ -513,20 +524,24 @@ definitions:
           type: string
       paymentOperatorPhoneNumbers:
         title: Телефон оператора по приему платежей
+        description: При осуществлении деятельности платежного агента и платежного субагента
         x-tag-id: 1074
         type: array
         items:
           type: string
       paymentOperatorName:
         title: Наименование оператора перевода
+        description: для банковских платежных [суб]агентов
         x-tag-id: 1026
         type: string
       paymentOperatorAddress:
         title: Адрес оператора перевода
+        description: для банковских платежных [суб]агентов
         x-tag-id: 1005
         type: string
       paymentOperatorINN:
         title: ИНН оператора перевода
+        description: для банковских платежных [суб]агентов
         x-tag-id: 1016
         type: string
 

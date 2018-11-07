@@ -59,6 +59,9 @@ properties:
         description:
           description: Описание значения
           type: string
+        print:
+          description: Название значения для вывода пользователям/печати в чек
+          type: string
         x-tag-id:
           description: "Номер тега в ФН, который задействуется при использовании этого значения для поля"
           type: integer
