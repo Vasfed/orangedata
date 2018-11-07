@@ -7,28 +7,26 @@
 A ruby client for orangedata.ru service.
 Target service is pretty local to RU, so parts of readme will be in russian.
 
-Note: This is a Work-in-progress. API might change in the future.
+Ruby-клиент для сервиса онлайн-касс OrangeData
 
 Умеет:
 - собственно транспорт с подписью запросов
 - сгенерировать ключ сразу в нужном виде
 - маппинг для данных генерируется на базе приведенного в человеческий вид официального json-schema-описания
 
+В планах получше подружить с рельсами.
+
+На всякий случай disclaimer: API еще не полностью устоялось и возможно будет обновляться по мере обкатки.
+
 ## Установка
 
-Все стандартно. Пишем в Gemfile:
+Все стандартно - `bundle add orangedata`, либо по-старике пишем в Gemfile:
 
 ```ruby
 gem 'orangedata'
 ```
 
-И давим:
-
-    $ bundle
-
-Либо руками:
-
-    $ gem install orangedata
+и давим `bundle`. Совсем руками можно `gem install orangedata`
 
 ## Использование
 
@@ -36,6 +34,12 @@ gem 'orangedata'
 Получение ключей для продакшна описано ниже.
 
 ### Пробитие чека
+
+Описание полей смотреть в [официальной документации](https://github.com/orangedata-official/API), названия маппинга и некоторые коментарии есть [в схеме данных](lib/orange_data/schema_definitions.yml) (метасхема расширений [тут](spec/lib/extensions_metaschema.yml)).
+
+Для `enum`-полей есть маппинг, например `content.positions[0].tax` принимает значения: `:vat_18`, `:vat_10`, `:vat_18_118`, `:vat_10_110`, `:vat_0`, `:vat_not_charged`.
+
+Простейший чек в тестовом окружении:
 
 ```ruby
   transport = OrangeData::Transport.new("https://apip.orangedata.ru:2443/api/v2/", OrangeData::Credentials.default_test)
