@@ -66,7 +66,7 @@ module OrangeData
 
     class IntermediateResult
       def initialize(
-        success:false, sub_url:nil, data:data,
+        success:false, sub_url:nil, data:,
         attempt_retry:false, retry_in:nil, retry_count:0, transport:nil,
         errors:nil
       )
