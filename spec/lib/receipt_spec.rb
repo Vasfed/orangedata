@@ -119,11 +119,15 @@ RSpec.describe OrangeData::Receipt do
           pos.set_agent_info payment_operator_inn:'12345'
           pos.set_supplier_info name:'ООО Ромашка'
         }
+        r.set_agent_info payment_agent_operation: 'операциия'
         r.add_payment(1, :card)
         r.add_payment(50, :cash)
         r.check_close.taxation_system = :common
         r.set_additional_user_attribute name:'Аттрибут', value:'lala'
       }
+
+      expect(receipt.content.payment_agent_operation).to eq 'операциия'
+
       json = receipt.to_json
       expect(JSON::Validator.fully_validate_json(OrangeData::PAYLOAD_SCHEMA, json)).to eq []
 

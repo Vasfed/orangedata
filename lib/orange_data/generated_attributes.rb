@@ -110,6 +110,10 @@ module OrangeData
       self
     end
 
+    def attributes
+      to_hash.map{|(k,v)| [k.underscore, v] }.to_h
+    end
+
     def ==(other)
       self.class == other.class && to_hash == other.to_hash
       # @payload == other.instance_variable_get(:@payload)

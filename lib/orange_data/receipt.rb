@@ -95,7 +95,11 @@ module OrangeData
       @additional_user_attribute = AdditionalUserAttribute.new.assign_attributes(options)
     end
 
-
+    def set_agent_info(**options)
+      # agent info may have some validations/transformations, so
+      agent_info = AgentInfo.new.assign_attributes(options)
+      assign_attributes(agent_info.attributes.reject{|_k,v| v.nil?})
+    end
 
     class Position < PayloadContent
       def initialize(payload={})
