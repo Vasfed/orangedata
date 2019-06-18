@@ -40,8 +40,8 @@ namespace :swagger do
 
       if old_schema['properties'].keys != new_schema['properties'].keys
         if old_schema['properties'].keys.sort != new_schema['properties'].keys.sort
-          puts "\t#{key} added: #{old_schema['properties'].keys - new_schema['properties'].keys}"
-          puts "\t#{key} removed: #{new_schema['properties'].keys - old_schema['properties'].keys}"
+          puts "\t#{key} added: #{new_schema['properties'].keys - old_schema['properties'].keys}"
+          puts "\t#{key} removed: #{old_schema['properties'].keys - new_schema['properties'].keys}"
         else
           puts "\t#{key} property order changed"
         end
