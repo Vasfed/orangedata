@@ -21,7 +21,7 @@ namespace :swagger do
     `curl https://apip.orangedata.ru:2443/swagger/v2/swagger.json > #{swagger_file_name}`
   end
 
-  task :diff => [:environment, swagger_file_name] do
+  task diff: [:environment, swagger_file_name] do
     swagger = JSON.parse(File.read(swagger_file_name))
 
     new_definitions = swagger['definitions']

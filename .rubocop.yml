@@ -76,7 +76,7 @@ Layout/DotPosition:
   # so that code can be copied to console
   EnforcedStyle: trailing
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
 
 Layout/EmptyLines:
