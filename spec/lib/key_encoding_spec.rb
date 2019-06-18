@@ -40,7 +40,13 @@ RSpec.describe 'KeyEncoding for RSA key' do
         "d"=>"z/vzSQ==", "p"=>"/Ps=", "q"=>"818=", "dmp1"=>"Shk=", "dmq1"=>"uTc=", "iqmp"=>"6SI="
       }
     }
-    let(:key_public_hash){ key_private_hash.slice("n", "e") }
+    let(:key_public_hash){
+      # key_private_hash.slice("n", "e"), but not supported on ruby 2.3
+      {
+        "n" => key_private_hash["n"],
+        "e" => key_private_hash["e"]
+      }
+    }
     let(:key){ OpenSSL::PKey::RSA.new pem }
 
     it "to_hash" do

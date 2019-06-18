@@ -44,27 +44,37 @@ module OrangeData
 
         def from_hash(hash)
           OpenSSL::PKey::RSA.new.tap do |key|
-            # a bit ugly - simulating with_indifferent_access
-            if hash['n'] || hash[:n]
-              # public key only has n and e (without them - there's no key actually)
-              key.set_key(
-                OpenSSL::BN.new(Base64.decode64(hash['n'] || hash[:n]), 2),
-                OpenSSL::BN.new(Base64.decode64(hash['e'] || hash[:e]), 2),
-                (hash['d'] || hash[:d]) && OpenSSL::BN.new(Base64.decode64(hash['d'] || hash[:d]), 2)
-              )
-            end
-
-            if hash['p'] || hash[:p]
-              key.set_factors(
-                OpenSSL::BN.new(Base64.decode64(hash['p'] || hash[:p]), 2),
-                OpenSSL::BN.new(Base64.decode64(hash['q'] || hash[:q]), 2)
-              )
-              if hash['dmp1'] || hash[:dmp1]
-                key.set_crt_params(
-                  OpenSSL::BN.new(Base64.decode64(hash['dmp1'] || hash[:dmp1]), 2),
-                  OpenSSL::BN.new(Base64.decode64(hash['dmq1'] || hash[:dmq1]), 2),
-                  OpenSSL::BN.new(Base64.decode64(hash['iqmp'] || hash[:iqmp]), 2)
+            if key.respond_to?(:set_key)
+              # ruby 2.5+
+              # a bit ugly - simulating with_indifferent_access
+              if hash['n'] || hash[:n]
+                # public key only has n and e (without them - there's no key actually)
+                key.set_key(
+                  OpenSSL::BN.new(Base64.decode64(hash['n'] || hash[:n]), 2),
+                  OpenSSL::BN.new(Base64.decode64(hash['e'] || hash[:e]), 2),
+                  (hash['d'] || hash[:d]) && OpenSSL::BN.new(Base64.decode64(hash['d'] || hash[:d]), 2)
                 )
+              end
+
+              if hash['p'] || hash[:p]
+                key.set_factors(
+                  OpenSSL::BN.new(Base64.decode64(hash['p'] || hash[:p]), 2),
+                  OpenSSL::BN.new(Base64.decode64(hash['q'] || hash[:q]), 2)
+                )
+                if hash['dmp1'] || hash[:dmp1]
+                  key.set_crt_params(
+                    OpenSSL::BN.new(Base64.decode64(hash['dmp1'] || hash[:dmp1]), 2),
+                    OpenSSL::BN.new(Base64.decode64(hash['dmq1'] || hash[:dmq1]), 2),
+                    OpenSSL::BN.new(Base64.decode64(hash['iqmp'] || hash[:iqmp]), 2)
+                  )
+                end
+              end
+            else
+              # ruby 2.3 and may be older
+              key.params.keys.each do |param|
+                if (v = hash[param] || hash[param.to_sym])
+                  key.send(:"#{param}=", OpenSSL::BN.new(Base64.decode64(v), 2))
+                end
               end
             end
           end
