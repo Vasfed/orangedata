@@ -35,7 +35,8 @@ module OrangeData
       schema["properties"].each_pair do |property, info|
         property_name = info["x-name"] || property.underscore
 
-        if plain_types.include?(info["type"])
+        if plain_types.include?(info["type"]) ||
+          info["type"].is_a?(Array) && plain_types.include?(info["type"].first) && info["type"].last == "null" && info["type"].size == 2
           if info["x-enum"]
             inverse_map = info["x-enum"].map{|k, v| [v['val'], k.to_sym] }.to_h
             define_method(property_name){

@@ -42,6 +42,10 @@ definitions:
       content:
         title: Содержимое документа
         "$ref": "#/definitions/CheckContent"
+      callbackUrl:
+        description: URL для отправки результатов обработки чека POST запросом
+        type: [string, "null"]
+        maxLength: 1024
 
 
   CheckContent:
@@ -361,15 +365,15 @@ definitions:
         format: byte
         minLength: 1
         maxLength: 32
+      supplierINN:
+        title: ИНН поставщика
+        x-tag-id: 1226
+        type: string
       supplierInfo:
         "$ref": "#/definitions/SupplierInfo"
         title: Данные поставщика
         nullable: true
         x-tag-id: 1224
-      supplierINN:
-        title: ИНН поставщика
-        x-tag-id: 1226
-        type: string
       agentType:
         x-tag-id: 1222
         x-todo: DRY 1057?
@@ -613,6 +617,11 @@ definitions:
         type: string
       content:
         "$ref": "#/definitions/CorrectionContent"
+      callbackUrl:
+        description: URL для отправки результатов обработки чека POST запросом
+        type: [string, "null"]
+        maxLength: 1024
+
 
 
   CorrectionContent:
@@ -833,6 +842,11 @@ definitions:
       fp:
         title: Фискальный признак
         type: string
+      callbackUrl:
+        description: URL для отправки результатов обработки чека POST запросом
+        type: [string, "null"]
+        maxLength: 1024
+
 
 
   CheckStatusViewModel[CorrectionContent]:
@@ -902,3 +916,8 @@ definitions:
         title: Фискальный признак
         type: string
         maxLength: 10
+      callbackUrl:
+        description: URL для отправки результатов обработки чека POST запросом
+        type: [string, "null"]
+        maxLength: 1024
+
