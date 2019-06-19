@@ -142,6 +142,14 @@ res = transport.get_correction(correction.inn, correction.id)
   transport.post_document # и далее по тексту, осторожно - не пробейте лишние чеки во время проверок
 ```
 
+Еще есть `OrangeData::Credentials.read_certs_from_zip_pack`, куда можно скормить нераспакованный файлик, если у вас есть `gem 'rubyzip'`:
+
+```ruby
+  c = Zip::File.open("cert_123.zip") do |zip_file|
+    OrangeData::Credentials.read_certs_from_zip_pack(zip_file, cert_key_pass:'1234')
+  end
+```
+
 ## Разработка
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

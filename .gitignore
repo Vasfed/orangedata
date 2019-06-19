@@ -8,3 +8,4 @@
 /tmp/
 /.rspec_status
 /*.yml
+.DS_Store

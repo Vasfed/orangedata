@@ -30,6 +30,23 @@ RSpec.describe OrangeData::Credentials do
       expect(cr.signature_key.n.num_bits).to eq 2048
     end
 
+    it "load from zip" do
+      require 'zip'
+      cr = Zip::File.open("#{fixtures_path}/cert_folder_123.zip") do |zip_file|
+        described_class.read_certs_from_zip_pack(zip_file, cert_key_pass:'1234')
+      end
+      expect(cr).to be_a(described_class)
+      expect(cr).to be_valid
+      expect(cr.title).to eq 'Generated from zip'
+      expect(cr.signature_key_name).to eq '1234567890'
+
+      expect(cr.certificate.to_pem).to eq(short_credentials_hash[:certificate])
+      expect(cr.certificate_key.to_pem).to eq(short_credentials_hash[:certificate_key])
+      expect(cr.signature_key).to be_a(OpenSSL::PKey::RSA)
+      expect(cr.signature_key).to be_private
+      expect(cr.signature_key.n.num_bits).to eq 2048
+    end
+
     it "export to hash" do
       expect(subject.to_hash(key_pass:false)).to eq short_credentials_hash
       expect(subject.signature_public_xml).to eq '<RSAKeyValue><Modulus>6PA+veZ0WKLyB48DfrPyCbYYe9JNvbzoHckF3AlTLSsylVHjZu4ebWGBgNVtV52HZfOkYALPR5z0SLiq0DRL3Q==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>'

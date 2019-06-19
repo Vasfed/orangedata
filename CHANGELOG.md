@@ -1,3 +1,8 @@
+# 0.0.7
+
+- data schema update to 2.23.0 (15.06.2019)
+- Added: load credentials from zip file via rubyzip (no dependency, only accept already opened object)
+
 # 0.0.6
 
 - data schema changes:

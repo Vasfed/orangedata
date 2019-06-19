@@ -234,6 +234,33 @@ module OrangeData
       )
     end
 
+    def self.read_certs_from_zip_pack(rubyzip_object, signature_key_name:nil, cert_key_pass:nil, title:nil, signature_key:nil)
+      client_cert = rubyzip_object.glob("*.crt").select{|f| rubyzip_object.glob(f.name.sub(/.crt\z/, '.key')).any? }
+      raise 'Expect to find exactly one <num>.crt with corresponding <num>.key file' unless client_cert.size == 1
+      client_cert = client_cert.first
+      client_key = rubyzip_object.glob(client_cert.name.sub(/.crt\z/, '.key')).first
+
+      unless signature_key
+        # private_key_test.xml || rsa_\d+_private_key.xml
+        xmls = rubyzip_object.glob('/*.{xml}').select{|f| f =~ /private/ }
+        signature_key = if xmls.size == 1
+          xmls.first.get_input_stream.read
+        else
+          generate_signature_key(DEFAULT_KEY_LENGTH)
+          # .tap{|k| logger.info("Generated public signature key: #{k.public_key.to_xml}") }
+        end
+      end
+
+      from_hash(
+        title: title || "Generated from zip",
+        signature_key_name: signature_key_name || File.basename(client_cert.name).gsub(/\..*/, ''),
+        certificate: client_cert.get_input_stream.read,
+        certificate_key: client_key.get_input_stream.read,
+        certificate_key_pass: cert_key_pass,
+        signature_key: signature_key
+      )
+    end
+
     # публичная часть ключа подписи в формате пригодном для отдачи в ЛК
     def signature_public_xml
       signature_key.public_key.to_xml
