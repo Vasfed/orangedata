@@ -11,14 +11,15 @@ module OrangeData
   # main class for receipt/correction
   class Document
 
-    attr_accessor :id, :inn, :group, :key_name, :content
+    attr_accessor :id, :inn, :group, :key_name, :content, :callback_url
 
-    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil, content:nil)
+    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil, content:nil, callback_url: nil)
       @id = id
       @inn = inn
       @group = group
       @key_name = key_name || inn
       @content = content if content
+      @callback_url = callback_url
       yield @content if block_given?
     end
 
@@ -29,12 +30,14 @@ module OrangeData
         group: group || 'Main',
         content: content,
         key: key_name
+      }.tap{|h|
+        h[:callbackUrl] = @callback_url if @callback_url
       }.to_json(*args)
     end
   end
 
   class Receipt < Document
-    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil, content:nil)
+    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil, content:nil, callback_url: nil)
       @content = ReceiptContent.new(content || {})
       super
     end
@@ -207,7 +210,7 @@ module OrangeData
   # Correction
 
   class Correction < Document
-    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil, content:nil)
+    def initialize(id:SecureRandom.uuid, inn:, group:nil, key_name:nil, content:nil, callback_url: nil)
       @content = CorrectionContent.new(content || {})
       super
     end
