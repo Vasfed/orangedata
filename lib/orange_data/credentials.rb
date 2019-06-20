@@ -134,13 +134,14 @@ module OrangeData
       }
     end
 
-    def self.from_hash(creds)
+    def self.from_hash(creds, key_pass:nil)
+      key_pass ||= '' # hack to prevent password prompt, works in fresh openssl gem/ruby
       new(
         title: creds[:title],
         signature_key_name: creds[:signature_key_name],
-        signature_key: OpenSSL::PKey::RSA.load_from(creds[:signature_key], creds[:signature_key_pass]),
+        signature_key: OpenSSL::PKey::RSA.load_from(creds[:signature_key], creds[:signature_key_pass] || key_pass),
         certificate: creds[:certificate] && OpenSSL::X509::Certificate.new(creds[:certificate]),
-        certificate_key: OpenSSL::PKey::RSA.load_from(creds[:certificate_key], creds[:certificate_key_pass])
+        certificate_key: OpenSSL::PKey::RSA.load_from(creds[:certificate_key], creds[:certificate_key_pass] || key_pass)
       )
     end
 

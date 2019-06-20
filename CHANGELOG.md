@@ -2,6 +2,7 @@
 
 - data schema update to 2.23.0 (15.06.2019)
 - Added: load credentials from zip file via rubyzip (no dependency, only accept already opened object)
+- Added: Credentials#from_hash now accepts `key_pass` argument
 
 # 0.0.6
 

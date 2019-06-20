@@ -16,6 +16,18 @@ RSpec.describe OrangeData::Credentials do
       expect(subject.certificate_key).to be_a(OpenSSL::PKey::RSA)
     end
 
+    it "load from hash with key pass" do
+      is_expected.to be_valid
+
+      hash = subject.to_hash(key_pass: '3210', save_pass: false)
+
+      expect{
+        described_class.from_hash(hash)
+      }.to raise_error(OpenSSL::PKey::RSAError)
+
+      expect(described_class.from_hash(hash, key_pass:'3210')).to eq subject
+    end
+
     it "load from folder" do
       cr = described_class.read_certs_from_pack("#{fixtures_path}/cert_folder_123", cert_key_pass:'1234')
       expect(cr).to be_a(described_class)
