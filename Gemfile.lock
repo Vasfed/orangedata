@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    orangedata (0.0.7)
+    orangedata (0.0.8)
       faraday (>= 0.15)
       faraday_middleware
 

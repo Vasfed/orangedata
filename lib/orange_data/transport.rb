@@ -163,6 +163,9 @@ module OrangeData
       case res.status
       when 200
         return res.body
+      when 202
+        # not processed yet
+        return nil
       when 400
         raise "Cannot get doc: #{res.body['errors'] || res.body}"
       when 401

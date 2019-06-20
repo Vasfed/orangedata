@@ -200,6 +200,12 @@ RSpec.describe OrangeData::Transport do
       expect(subject.id).to eq('resp')
     end
 
+    context "when not ready yet" do
+      let(:resp_status){ 202 }
+      let(:resp_body){ nil }
+      it{ expect(subject).to be_nil }
+    end
+
     context "when error" do
       let(:resp_status){ 400 }
       let(:resp_body){ { errors:["somefailhere"] } }
@@ -218,11 +224,34 @@ RSpec.describe OrangeData::Transport do
     let(:doc_id){ 456 }
     subject{ transport.get_correction inn, doc_id }
 
-    it "works" do
+    let(:resp_body){ { id: 'resp' } }
+    let(:resp_status){ 200 }
+    before do
       stub_request(:get, "#{api_root}corrections/123/status/456").
-        to_return(status: 200, body:{ id: 'resp' }.to_json, headers: { 'Content-type' => 'application/json' })
+        to_return(status: resp_status, body: resp_body.to_json, headers: { 'Content-type' => 'application/json' })
+    end
+
+    it "works" do
       is_expected.to be_a(OrangeData::CorrectionResult)
       expect(subject.id).to eq('resp')
+    end
+
+    context "when not ready yet" do
+      let(:resp_status){ 202 }
+      let(:resp_body){ nil }
+      it{ is_expected.to be_nil }
+    end
+
+    context "when error" do
+      let(:resp_status){ 400 }
+      let(:resp_body){ { errors:["somefailhere"] } }
+      it{ expect{ subject }.to raise_error(/somefailhere/) }
+    end
+
+    context "when not authorized" do
+      let(:resp_status){ 401 }
+      let(:resp_body){ {} }
+      it{ expect{ subject }.to raise_error(/Unauthorized/) }
     end
   end
 

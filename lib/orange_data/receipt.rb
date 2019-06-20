@@ -181,6 +181,7 @@ module OrangeData
     end
 
     def self.from_hash(hash)
+      return if hash.nil?
       raise ArgumentError, 'Expect hash here' unless hash.is_a?(Hash)
 
       new(hash)
@@ -236,6 +237,7 @@ module OrangeData
     end
 
     def self.from_hash(hash)
+      return if hash.nil?
       raise ArgumentError, 'Expect hash here' unless hash.is_a?(Hash)
 
       new(hash)

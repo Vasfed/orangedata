@@ -1,5 +1,6 @@
 # 0.0.8
 
+- Fixed: return `nil` when document is not ready yet 
 
 # 0.0.7
 
