@@ -1,3 +1,6 @@
+# 0.0.9
+
+
 # 0.0.8
 
 - Fixed: return `nil` when document is not ready yet 
