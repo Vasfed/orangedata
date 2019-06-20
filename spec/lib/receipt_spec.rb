@@ -26,9 +26,9 @@ RSpec.describe OrangeData::Receipt do
         expect(subject.to_hash["agentType"]).to eq(1 << 1)
         expect(subject.agent_type).to eq([:bank_subagent])
 
-        subject.agent_type = [:bank_subagent, :attorney]
+        subject.agent_type = %i[bank_subagent attorney]
         expect(subject.to_hash["agentType"]).to eq(2 + (1 << 4))
-        expect(subject.agent_type).to eq([:bank_subagent, :attorney])
+        expect(subject.agent_type).to eq(%i[bank_subagent attorney])
       end
 
       it "paymentTransferOperatorPhoneNumbers string array" do

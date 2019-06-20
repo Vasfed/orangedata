@@ -33,9 +33,16 @@ module OrangeData
           raise ArgumentError, 'no RSAKeyValue in xml' unless kv && kv.name == 'RSAKeyValue'
 
           mapping = {
-            "Modulus"=>:n, "Exponent"=>:e,
-            "D"=>:d, "P"=>:p, "Q"=>:q,
-            "DP"=>:dmp1, "DQ"=>:dmq1, "InverseQ"=>:iqmp
+            "Modulus" => :n,
+            "Exponent" => :e,
+
+            "D" => :d,
+            "P" => :p,
+            "Q" => :q,
+
+            "DP" => :dmp1,
+            "DQ" => :dmq1,
+            "InverseQ" => :iqmp
           }
           from_hash(
             kv.elements.each_with_object({}){|k, h| h[mapping[k.name]] = k.text if mapping[k.name] }
@@ -82,6 +89,7 @@ module OrangeData
 
         def load_from(val, key_pass=nil)
           return val unless val
+
           case val
           when self
             val
@@ -97,9 +105,7 @@ module OrangeData
             raise ArgumentError, "cannot load from #{val.class}"
           end
         end
-
       end
-
     end
 
     using KeyEncoding
@@ -109,6 +115,7 @@ module OrangeData
     def initialize(signature_key_name:nil, signature_key:nil, certificate:nil, certificate_key:nil, title:nil)
       raise ArgumentError, "Signature key should be a private key" if signature_key && !signature_key.private?
       raise ArgumentError, "Certificate key should be a private key" if certificate_key && !certificate_key.private?
+
       @signature_key_name = signature_key_name
       @signature_key = signature_key
       @certificate = certificate
@@ -126,6 +133,7 @@ module OrangeData
 
     def ==(other)
       return false unless %i[signature_key_name title].all?{|m| send(m) == other.send(m) }
+
       # certificates/keys cannot be compared directly, so dump
       %i[signature_key certificate certificate_key].all?{|m|
         c1 = send(m)
@@ -135,7 +143,7 @@ module OrangeData
     end
 
     def self.from_hash(creds, key_pass:nil)
-      key_pass ||= '' # hack to prevent password prompt, works in fresh openssl gem/ruby
+      key_pass ||= '' # to prevent password prompt, works in fresh openssl gem/ruby
       new(
         title: creds[:title],
         signature_key_name: creds[:signature_key_name],
@@ -205,6 +213,7 @@ module OrangeData
 
     def self.generate_signature_key(key_length=DEFAULT_KEY_LENGTH)
       raise ArgumentError, "key length should be >= 489, recomended #{DEFAULT_KEY_LENGTH}" unless key_length >= 489
+
       OpenSSL::PKey::RSA.new(key_length)
     end
 
@@ -212,6 +221,7 @@ module OrangeData
       path = File.expand_path(path)
       client_cert = Dir.glob(path + '/*.{crt}').select{|f| File.file?(f.sub(/.crt\z/, '.key')) }
       raise 'Expect to find exactly one <num>.crt with corresponding <num>.key file' unless client_cert.size == 1
+
       client_cert = client_cert.first
 
       unless signature_key
@@ -238,6 +248,7 @@ module OrangeData
     def self.read_certs_from_zip_pack(rubyzip_object, signature_key_name:nil, cert_key_pass:nil, title:nil, signature_key:nil)
       client_cert = rubyzip_object.glob("*.crt").select{|f| rubyzip_object.glob(f.name.sub(/.crt\z/, '.key')).any? }
       raise 'Expect to find exactly one <num>.crt with corresponding <num>.key file' unless client_cert.size == 1
+
       client_cert = client_cert.first
       client_key = rubyzip_object.glob(client_cert.name.sub(/.crt\z/, '.key')).first
 

@@ -14,10 +14,10 @@ RSpec.describe OrangeData::Transport do
     req = stub_request(:post, "#{api_root}test").with(
       body: expected_body,
       headers: {
-        'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
-        'Accept'=>'application/json',
-        'Content-Type'=>'application/json',
-        'X-Signature'=>Base64.strict_encode64(
+        'User-Agent' => "OrangeDataRuby/#{OrangeData::VERSION}",
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
+        'X-Signature' => Base64.strict_encode64(
           test_credentials.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
         )
       }
@@ -201,12 +201,14 @@ RSpec.describe OrangeData::Transport do
     end
 
     context "when error" do
-      let(:resp_status){ 400 }; let(:resp_body){ { errors:["somefailhere"] } }
+      let(:resp_status){ 400 }
+      let(:resp_body){ { errors:["somefailhere"] } }
       it{ expect{ subject }.to raise_error(/somefailhere/) }
     end
 
     context "when not authorized" do
-      let(:resp_status){ 401 }; let(:resp_body){ {} }
+      let(:resp_status){ 401 }
+      let(:resp_body){ {} }
       it{ expect{ subject }.to raise_error(/Unauthorized/) }
     end
   end

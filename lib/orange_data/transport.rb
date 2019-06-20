@@ -14,6 +14,7 @@ module OrangeData
 
     def initialize(api_url=DEFAULT_TEST_API_URL, credentials=Credentials.default_test)
       raise ArgumentError, "Need full credentials for connection" unless credentials.valid?
+
       @credentials = credentials
       @api_url = api_url
     end
@@ -92,15 +93,20 @@ module OrangeData
 
       def retry
         raise "not-retriable" unless should_retry?
-        @transport.post_entity(@sub_url, @data, raise_errors:false, result_class:self.class, retry_count:(retry_count + 1))
+
+        @transport.post_entity(@sub_url, @data,
+          raise_errors:false, result_class:self.class, retry_count:(retry_count + 1))
       end
 
       protected
-      def get_result_with get_method
+
+      def get_result_with(get_method)
         raise "Non-success" unless success?
-        @transport.send(get_method,
+
+        @transport.send(
+          get_method,
           @data.respond_to?(:inn) && @data.inn || @data[:inn] || @data["inn"],
-          @data.respond_to?(:id) && @data.id || @data[:id] || @data["id"],
+          @data.respond_to?(:id) && @data.id || @data[:id] || @data["id"]
         )
       end
     end
@@ -122,20 +128,32 @@ module OrangeData
 
       case res.status
       when 201
-        return result_class.new(success: true, data:data, sub_url:sub_url, retry_count:0, transport:self)
+        return result_class.new(success: true, data:data, sub_url:sub_url, retry_count:retry_count, transport:self)
       when 409
         raise "Conflict" if raise_errors
-        return result_class.new(data:data, sub_url:sub_url, errors:["Duplicate id"], retry_count:0)
+
+        return result_class.new(data:data, sub_url:sub_url, errors:["Duplicate id"], retry_count:retry_count)
       when 400
         raise "Invalid doc: #{res.body['errors'] || res.body}" if raise_errors
-        return result_class.new(data:data, sub_url:sub_url, errors:res.body['errors'], retry_count:0)
+
+        return result_class.new(data:data, sub_url:sub_url, errors:res.body['errors'], retry_count:retry_count)
       when 503
         if res.headers['Retry-After']
           raise "Document queue full, retry in #{res.headers['Retry-After']}" if raise_errors
-          return result_class.new(attempt_retry:true, retry_in:res.headers['Retry-After'].to_i, data:data, sub_url:sub_url, retry_count:0, transport:self)
+
+          return result_class.new(
+            attempt_retry: true,
+            retry_in: res.headers['Retry-After'].to_i,
+            data: data,
+            sub_url: sub_url,
+            retry_count: retry_count,
+            transport: self
+          )
         end
       end
+
       raise "Unknown code from OD: #{res.status} #{res.reason_phrase} #{res.body}" if raise_errors
+
       result_class.new(attempt_retry:true, data:data, sub_url:sub_url, retry_count:0, transport:self)
     end
 

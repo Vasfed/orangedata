@@ -17,8 +17,8 @@ RSpec::Matchers.define :have_attributes_from do |expected|
   failure_message do |actual|
     [
       "expected #{actual} to have all attributes from definitions.#{expected}.properties",
-      @missing.size > 0 && "missing getters: #{@missing}" || nil,
-      @missing_setters.size > 0 && "missing setters: #{@missing_setters}" || nil,
+      !@missing.empty? && "missing getters: #{@missing}" || nil,
+      !@missing_setters.empty? && "missing setters: #{@missing_setters}" || nil,
     ].compact.join("\n")
   end
 end

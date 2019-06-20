@@ -56,10 +56,11 @@ module OrangeData
       # TODO: import...
       # TODO: taxationSystem default in checkclose
       @check_close = CheckClose.new(@payload['checkClose'])
-      @positions = (@payload['positions'] || []).map{|pos| Position.new(pos) }
       if @payload["additionalUserAttribute"]
         @additional_user_attribute = AdditionalUserAttribute.new(@payload["additionalUserAttribute"])
       end
+
+      @positions = (@payload['positions'] || []).map{|pos| Position.new(pos) }
     end
 
     # сырой тип используется в qr_code
@@ -101,7 +102,7 @@ module OrangeData
     def set_agent_info(**options)
       # agent info may have some validations/transformations, so
       agent_info = AgentInfo.new.assign_attributes(options)
-      assign_attributes(agent_info.attributes.reject{|_k,v| v.nil?})
+      assign_attributes(agent_info.attributes.reject{|_k, v| v.nil? })
     end
 
     class Position < PayloadContent
@@ -181,6 +182,7 @@ module OrangeData
 
     def self.from_hash(hash)
       raise ArgumentError, 'Expect hash here' unless hash.is_a?(Hash)
+
       new(hash)
     end
 
@@ -235,6 +237,7 @@ module OrangeData
 
     def self.from_hash(hash)
       raise ArgumentError, 'Expect hash here' unless hash.is_a?(Hash)
+
       new(hash)
     end
 

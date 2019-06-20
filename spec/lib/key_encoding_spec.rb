@@ -16,7 +16,7 @@ RSpec.describe 'KeyEncoding for RSA key' do
 
   describe "key encoding refinements" do
     using OrangeData::Credentials::KeyEncoding
-    
+
     let(:pem) do
       <<~PEM
         -----BEGIN RSA PRIVATE KEY-----
@@ -36,8 +36,9 @@ RSpec.describe 'KeyEncoding for RSA key' do
     let(:public_xml){ "<RSAKeyValue><Modulus>8IAiJQ==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>" }
     let(:key_private_hash){
       {
-        "n"=>"8IAiJQ==", "e"=>"AQAB",
-        "d"=>"z/vzSQ==", "p"=>"/Ps=", "q"=>"818=", "dmp1"=>"Shk=", "dmq1"=>"uTc=", "iqmp"=>"6SI="
+        "n" => "8IAiJQ==", "e"=>"AQAB",
+
+        "d" => "z/vzSQ==", "p"=>"/Ps=", "q"=>"818=", "dmp1"=>"Shk=", "dmq1"=>"uTc=", "iqmp"=>"6SI="
       }
     }
     let(:key_public_hash){
@@ -79,8 +80,8 @@ RSpec.describe 'KeyEncoding for RSA key' do
       context "symbol keys and no base64 padding" do
         let(:input_hash){
           {
-            n:"8IAiJQ", e:"AQAB",
-            d:"z/vzSQ", p:"/Ps", q:"818", dmp1:"Shk", dmq1:"uTc", iqmp:"6SI"
+            n: "8IAiJQ", e: "AQAB",
+            d: "z/vzSQ", p: "/Ps", q: "818", dmp1: "Shk", dmq1: "uTc", iqmp: "6SI"
           }
         }
 

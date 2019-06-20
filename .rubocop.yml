@@ -10,7 +10,7 @@ Gemspec/RequiredRubyVersion:
   Enabled: false
 
 Metrics/LineLength:
-  Max: 120
+  Max: 130
   Exclude:
     - 'spec/**/*'
 
@@ -18,6 +18,9 @@ Metrics/BlockLength:
   Enabled: false
   Exclude:
     - 'spec/**/*'
+
+Metrics/BlockNesting:
+  Max: 4
 
 Metrics/MethodLength:
   Max: 20
@@ -36,12 +39,18 @@ Metrics/CyclomaticComplexity:
 Metrics/PerceivedComplexity:
   Max: 50
 
+Metrics/ParameterLists:
+  Max: 10
+
 Style/StringLiterals:
   Enabled: false
   # EnforcedStyle: double_quotes
 
 Style/RedundantReturn:
   Enabled: false
+
+Layout/AlignArguments:
+  EnforcedStyle: with_fixed_indentation
 
 Layout/SpaceBeforeBlockBraces:
   EnforcedStyle: no_space
@@ -98,4 +107,7 @@ Style/BlockDelimiters:
 Style/TrailingCommaInHashLiteral:
   Enabled: false
 Style/TrailingCommaInArrayLiteral:
+  Enabled: false
+
+Naming/AccessorMethodName:
   Enabled: false

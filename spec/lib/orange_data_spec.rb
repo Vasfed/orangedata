@@ -6,41 +6,42 @@ RSpec.describe 'OrangeData' do
 
     let(:expected_body){
       {
-        "id"=>"50152258-a9aa-4d19-9216-5a3eecec7241",
-        "inn"=>"1234567890",
-        "group"=>"Main",
-        "content"=>{
-          "customer"=>"Иван Иваныч",
-          "type"=>1,
-          "positions"=>[{ "text"=>"Спички", "price"=>12.34, "tax"=>6 }],
-          "checkClose"=>{ "payments"=>[{ "type"=>1, "amount"=>50 }] }
+        "id" => "50152258-a9aa-4d19-9216-5a3eecec7241",
+        "inn" => "1234567890",
+        "group" => "Main",
+        "content" => {
+          "customer" => "Иван Иваныч",
+          "type" => 1,
+          "positions" => [{ "text"=>"Спички", "price"=>12.34, "tax"=>6 }],
+          "checkClose" => { "payments"=>[{ "type"=>1, "amount"=>50 }] }
         },
-        "key"=>"1234567890"
+        "key" => "1234567890"
       }.to_json
     }
     let(:result_body){
       {
-        "id"=>"50152258-a9aa-4d19-9216-5a3eecec7241",
-        "deviceSN"=>"1400000000001033",
-        "deviceRN"=>"0000000400054952",
-        "fsNumber"=>"9999078900001341",
-        "ofdName"=>"ООО \"Ярус\" (\"ОФД-Я\")",
-        "ofdWebsite"=>"www.ofd-ya.ru",
-        "ofdinn"=>"7728699517",
-        "fnsWebsite"=>"www.nalog.ru",
-        "companyINN"=>"1234567890",
-        "companyName"=>"Тест",
-        "documentNumber"=>3243,
-        "shiftNumber"=>234,
-        "documentIndex"=>7062, "processedAt"=>"2018-10-26T20:21:00",
-        "content"=>{
-          "type"=>1,
-          "positions"=>[{ "price"=>12.34, "tax"=>6, "text"=>"Спички" }],
-          "checkClose"=>{ "payments"=>[{ "type"=>1, "amount"=>50.0 }], "taxationSystem"=>0 },
-          "customer"=>"Иван Иваныч"
+        "id" => "50152258-a9aa-4d19-9216-5a3eecec7241",
+        "deviceSN" => "1400000000001033",
+        "deviceRN" => "0000000400054952",
+        "fsNumber" => "9999078900001341",
+        "ofdName" => "ООО \"Ярус\" (\"ОФД-Я\")",
+        "ofdWebsite" => "www.ofd-ya.ru",
+        "ofdinn" => "7728699517",
+        "fnsWebsite" => "www.nalog.ru",
+        "companyINN" => "1234567890",
+        "companyName" => "Тест",
+        "documentNumber" => 3243,
+        "shiftNumber" => 234,
+        "documentIndex" => 7062,
+        "processedAt" => "2018-10-26T20:21:00",
+        "content" => {
+          "type" => 1,
+          "positions" => [{ "price"=>12.34, "tax"=>6, "text"=>"Спички" }],
+          "checkClose" => { "payments"=>[{ "type"=>1, "amount"=>50.0 }], "taxationSystem"=>0 },
+          "customer" => "Иван Иваныч"
         },
-        "change"=>37.66,
-        "fp"=>"301645583"
+        "change" => 37.66,
+        "fp" => "301645583"
       }.to_json
     }
     let!(:document_post_request) do
@@ -48,10 +49,10 @@ RSpec.describe 'OrangeData' do
         with(
           body: expected_body,
           headers: {
-            'Accept'=>'application/json',
-            'Content-Type'=>'application/json',
-            'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
-            'X-Signature'=>Base64.strict_encode64(
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'User-Agent' => "OrangeDataRuby/#{OrangeData::VERSION}",
+            'X-Signature' => Base64.strict_encode64(
               OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
             )
           }
@@ -161,10 +162,10 @@ RSpec.describe 'OrangeData' do
         with(
           body: expected_body,
           headers: {
-            'Accept'=>'application/json',
-            'Content-Type'=>'application/json',
-            'User-Agent'=>"OrangeDataRuby/#{OrangeData::VERSION}",
-            'X-Signature'=>Base64.strict_encode64(
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+            'User-Agent' => "OrangeDataRuby/#{OrangeData::VERSION}",
+            'X-Signature' => Base64.strict_encode64(
               OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
             )
           }
@@ -173,7 +174,7 @@ RSpec.describe 'OrangeData' do
 
     let!(:document_get_request){
       stub_request(:get, "https://apip.orangedata.ru:2443/api/v2/corrections/123456789012/status/12345678990").
-        with(headers:{ 'Accept'=>'application/json' }).
+        with(headers:{ 'Accept' => 'application/json' }).
         to_return(status: 200, body: result_body, headers: { 'Content-type' => 'application/json' })
     }
 
@@ -183,7 +184,8 @@ RSpec.describe 'OrangeData' do
         c.assign_attributes(
           correction_type: :prescribed,
           description: "НЕ ХОЧЕТСЯ НО НАДО",
-          cause_document_date: "2017-08-10T00:00:00", cause_document_number: "ФЗ-54",
+          cause_document_date: "2017-08-10T00:00:00",
+          cause_document_number: "ФЗ-54",
           total_sum: 17.25,
           sum_cash: 1.23,
           sum_card: 2.34,

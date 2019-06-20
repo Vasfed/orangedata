@@ -34,7 +34,7 @@ namespace :swagger do
       puts "No top-level definitions changed"
     end
 
-    new_definitions.each_pair do|key, new_schema|
+    new_definitions.each_pair do |key, new_schema|
       old_schema = old_definitions[key]
       next unless old_schema
 
@@ -43,12 +43,13 @@ namespace :swagger do
           puts "\t#{key} added: #{new_schema['properties'].keys - old_schema['properties'].keys}"
           puts "\t#{key} removed: #{old_schema['properties'].keys - new_schema['properties'].keys}"
         else
-          puts "\t#{key} property order changed:\n\t\told:#{old_schema['properties'].keys}\n\t\tnew:#{new_schema['properties'].keys}"
+          puts "\t#{key} property order changed:"
+          puts "\t\told:#{old_schema['properties'].keys}"
+          puts "\t\tnew:#{new_schema['properties'].keys}"
         end
-      else
-        #TODO: deep compare
+        # else
+        # TODO: deep compare
       end
     end
-
   end
 end

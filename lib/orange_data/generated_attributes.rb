@@ -10,7 +10,7 @@ module OrangeData
     module StringExt
       refine String do
         def underscore
-          self.gsub(/::/, '/').
+          gsub(/::/, '/').
             gsub(/([A-Z]+)([A-Z][a-z])/, '\1_\2').
             gsub(/([a-z\d])([A-Z])/, '\1_\2').
             tr("-", "_").
@@ -30,26 +30,32 @@ module OrangeData
     end
 
     protected
+
     def generate_accessors_from_schema(schema)
       plain_types = %w[integer string number]
       schema["properties"].each_pair do |property, info|
         property_name = info["x-name"] || property.underscore
 
         if plain_types.include?(info["type"]) ||
-          info["type"].is_a?(Array) && plain_types.include?(info["type"].first) && info["type"].last == "null" && info["type"].size == 2
+           info["type"].is_a?(Array) && plain_types.include?(info["type"].first) &&
+           info["type"].last == "null" && info["type"].size == 2
           if info["x-enum"]
             inverse_map = info["x-enum"].map{|k, v| [v['val'], k.to_sym] }.to_h
+
             define_method(property_name){
               return nil if @payload[property].nil?
+
               inverse_map[@payload[property]] ||
                 raise("unknown value #{@payload[property].inspect} for field #{property}")
             }
             define_method(:"#{property_name}="){|val|
               unless val.nil?
-                val = (info["x-enum"][val.to_s] ||
+                val = (
+                  info["x-enum"][val.to_s] ||
                   raise(ArgumentError, "unknown value #{val.inspect} for property #{property}")
                 )["val"]
               end
+
               @payload[property] = val
             }
 
@@ -58,6 +64,7 @@ module OrangeData
             # TODO: return wrapper so that :<< etc will work
             define_method(property_name){
               return nil if @payload[property].nil?
+
               data = @payload[property].to_i
               # FIXME: unknown bits will be silently lost
               bitmap.reject{|_, v| (data & v).zero? }.map(&:first)
@@ -65,7 +72,9 @@ module OrangeData
             define_method(:"#{property_name}="){|val|
               unless val.nil?
                 val = [val] unless val.is_a?(Array)
-                val = val.map{|v| bitmap[v] || raise(ArgumentError, "unknown value #{v.inspect} for property #{property}") }.reduce(:|)
+                val = val.map{|v|
+                  bitmap[v] || raise(ArgumentError, "unknown value #{v.inspect} for property #{property}")
+                }.reduce(:|)
               end
               @payload[property] = val
             }
@@ -81,15 +90,16 @@ module OrangeData
               val = [val] unless val.is_a?(Array)
               @payload[property] = val
             }
-          else
+            # else
             # ref?
           end
-        else
+
+          # else
 
         end
 
         if info["x-alias"]
-          alias_method "#{info['x-alias']}", property_name
+          alias_method info['x-alias'].to_s, property_name
           alias_method "#{info['x-alias']}=", "#{property_name}="
         end
       end
@@ -112,7 +122,7 @@ module OrangeData
     end
 
     def attributes
-      to_hash.map{|(k,v)| [k.underscore, v] }.to_h
+      to_hash.map{|(k, v)| [k.underscore, v] }.to_h
     end
 
     def ==(other)
