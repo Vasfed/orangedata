@@ -570,22 +570,27 @@ definitions:
           cash:
             val: 1
             title: сумма по чеку наличными
+            print: Наличными
             x-tag-id: 1031
           card:
             val: 2
             title: сумма по чеку электронными
+            print: Электронными 
             x-tag-id: 1081
           prepaid:
             val: 14
             title: сумма по чеку предоплатой(зачетом аванса и (или) предыдущих платежей)
+            print: Предварительная оплата(аванс)
             x-tag-id: 1215
           credit:
             val: 15
             title: сумма по чеку постоплатой(в кредит)
+            print: Последующая оплата(кредит)
             x-tag-id: 1216
           counterclaim:
             val: 16
             title: сумма по чеку(БСО) встречным предоставлением
+            print: Иная форма оплаты
             x-tag-id: 1217
       amount:
         format: double
