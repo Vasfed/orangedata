@@ -1,5 +1,7 @@
 # 0.0.9
 
+- Added: Payment method names in schema
+- Added: credentials#certificate_subject
 
 # 0.0.8
 

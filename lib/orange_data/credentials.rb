@@ -197,11 +197,17 @@ module OrangeData
         key_name: signature_key_name.inspect,
       }
 
-      if certificate && (subject_name = certificate.subject.to_a.select{|ent| ent.first == 'O' }.first)
-        info_fields[:certificate] = %("#{(subject_name[1] || 'unknown').gsub('"', '\"')}")
+      if certificate && (subject_name = certificate_subject)
+        info_fields[:certificate] = %("#{(subject_name || 'unknown').gsub('"', '\"')}")
       end
 
       "#<#{self.class.name}:#{object_id} #{info_fields.map{|(k, v)| "#{k}=#{v}" }.join(' ')}>"
+    end
+
+    def certificate_subject
+      if subj = certificate.subject.to_a.select{|ent| ent.first == 'O' }.first
+        subj[1].force_encoding('UTF-8')
+      end
     end
 
     DEFAULT_KEY_LENGTH = 2048

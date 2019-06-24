@@ -104,6 +104,10 @@ RSpec.describe OrangeData::Credentials do
       cr.signature_key_name = subject.signature_key_name # also ignore
       expect(cr).to eq(described_class.default_test)
     end
+
+    it "have certificate_subject" do
+      expect(subject.certificate_subject).to eq "Orangedata test client"
+    end
   end
 
 end
