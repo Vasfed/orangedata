@@ -23,7 +23,7 @@ module OrangeData
       yield @content if block_given?
     end
 
-    def to_json(*args)
+    def as_json
       {
         id: id,
         inn: inn,
@@ -32,7 +32,11 @@ module OrangeData
         key: key_name
       }.tap{|h|
         h[:callbackUrl] = @callback_url if @callback_url
-      }.to_json(*args)
+      }
+    end
+
+    def to_json(*args)
+      as_json.to_json(*args)
     end
   end
 

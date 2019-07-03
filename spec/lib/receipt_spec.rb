@@ -111,6 +111,12 @@ RSpec.describe OrangeData::Receipt do
       expect(json).to eq expected_json
     end
 
+    it "has as_json" do
+      json = subject.as_json.to_json
+      expect(JSON::Validator.fully_validate_json(OrangeData::PAYLOAD_SCHEMA, json)).to eq []
+      expect(json).to eq expected_json      
+    end
+
     it "more complex example" do
       receipt = OrangeData::Receipt.income_return(id: 'test321', inn:'43121'){|r|
         r.customer = "Иван Иваныч"
