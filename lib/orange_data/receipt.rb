@@ -25,12 +25,12 @@ module OrangeData
 
     def self.from_hash(hash)
       new(
-        id: hash[:id],
-        inn: hash[:inn],
-        group: hash[:group],
-        key_name: hash[:key],
-        content: hash[:content],
-        callback_url: hash[:callback_url]
+        id: hash[:id] || hash['id'],
+        inn: hash[:inn] || hash['inn'],
+        group: hash[:group] || hash['group'],
+        key_name: hash[:key] || hash['key'],
+        content: hash[:content] || hash['content'],
+        callback_url: hash[:callbackUrl] || hash['callbackUrl'],
       )
     end
 
