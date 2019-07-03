@@ -23,12 +23,23 @@ module OrangeData
       yield @content if block_given?
     end
 
+    def self.from_hash(hash)
+      new(
+        id: hash[:id],
+        inn: hash[:inn],
+        group: hash[:group],
+        key_name: hash[:key],
+        content: hash[:content],
+        callback_url: hash[:callback_url]
+      )
+    end
+
     def as_json
       {
         id: id,
         inn: inn,
         group: group || 'Main',
-        content: content,
+        content: content.is_a?(Hash) ? content : content.as_json,
         key: key_name
       }.tap{|h|
         h[:callbackUrl] = @callback_url if @callback_url
@@ -45,6 +56,7 @@ module OrangeData
       @content = ReceiptContent.new(content || {})
       super
     end
+
     PAYLOAD_SCHEMA["definitions"]["CheckContent"]["properties"]["type"]["x-enum"].each_pair do |slug, _info|
       define_singleton_method(slug) do |**args, &block|
         new(**args, &block).tap{|doc|

@@ -117,6 +117,11 @@ RSpec.describe OrangeData::Receipt do
       expect(json).to eq expected_json      
     end
 
+    it "has from_hash" do
+      rec = OrangeData::Receipt.from_hash(subject.as_json)
+      expect(rec.to_json).to eq(subject.to_json)
+    end
+
     it "more complex example" do
       receipt = OrangeData::Receipt.income_return(id: 'test321', inn:'43121'){|r|
         r.customer = "Иван Иваныч"

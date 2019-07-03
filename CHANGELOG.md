@@ -2,6 +2,7 @@
 
 - Added: Payment method names in schema
 - Added: credentials#certificate_subject
+- Added: `Receipt#as_json` and `.from_hash`
 
 # 0.0.8
 

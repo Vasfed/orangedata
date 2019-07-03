@@ -134,8 +134,12 @@ module OrangeData
       @payload
     end
 
+    def as_json
+      to_hash
+    end
+
     def to_json(*args)
-      to_hash.to_json(*args)
+      as_json.to_json(*args)
     end
   end
 
