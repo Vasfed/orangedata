@@ -18,7 +18,7 @@ module OrangeData
       @inn = inn
       @group = group
       @key_name = key_name || inn
-      @content = content if content
+      @content ||= content if content
       @callback_url = callback_url
       yield @content if block_given?
     end
