@@ -205,6 +205,18 @@ definitions:
         title: ИНН покупателя (клиента)
         x-tag-id: 1228
         type: string
+      cashier:
+        title: Кассир
+        x-tag-id: 1021
+        type: string
+      cashierINN:
+        title: ИНН кассира
+        x-tag-id: 1203
+        type: string
+      senderEmail:
+        title: Адрес электронной почты отправителя чека
+        x-tag-id: 1117
+        type: string
 
 
   CheckPosition:
@@ -785,7 +797,14 @@ definitions:
           patent:
             val: 5
             title: Патентная система налогообложения, Патент
-
+      cashier:
+        title: Кассир
+        x-tag-id: 1021
+        type: string
+      cashierINN:
+        title: ИНН кассира
+        x-tag-id: 1203
+        type: string
 
   CheckStatusViewModel[CheckContent]:
     type: object
