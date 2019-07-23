@@ -2,7 +2,12 @@
 info:
   version: '2.0'
   title: Nebula API v2
-  description: OpenApi-like definition for receipt schema with extensions and additions
+  description: |-
+    OpenApi-like definition for receipt schema with extensions and additions
+    Подробнее про поля имеет смысл смотреть в Приказ ФНС России от 21.03.2017 N ММВ-7-20/229@ (ред. от 22.10.2018)
+    "Об утверждении дополнительных реквизитов фискальных документов и форматов фискальных документов,
+    обязательных к использованию" (Зарегистрировано в Минюсте России 13.04.2017 N 46361)
+    (с изм. и доп., вступ. в силу с 01.01.2019)
 
 anyOf:
   - "$ref": "#definitions/CheckDocumentCreate[CheckContent]"
@@ -587,7 +592,7 @@ definitions:
           card:
             val: 2
             title: сумма по чеку электронными
-            print: Электронными 
+            print: Безналичными
             x-tag-id: 1081
           prepaid:
             val: 14
