@@ -111,6 +111,10 @@ module OrangeData
       self
     end
 
+    def add_taxation_system(taxation_system)
+      check_close.taxation_system = taxation_system
+    end
+
     def set_additional_user_attribute(**options)
       @additional_user_attribute = AdditionalUserAttribute.new.assign_attributes(options)
     end
@@ -171,7 +175,7 @@ module OrangeData
         }
       end
 
-      attr_reader :payments
+      attr_reader :payments, :taxation_system
 
       GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CheckClose"])
     end
