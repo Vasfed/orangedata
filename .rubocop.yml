@@ -2,8 +2,7 @@ AllCops:
   NewCops: enable
   SuggestExtensions: false
   # DefaultFormatter: fuubar
-  # TargetRubyVersion: 2.1
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: 2.5
   Exclude:
     - 'spec/fixtures/**/*'
     - 'tmp/**/*'
