@@ -1,20 +1,25 @@
-# 0.0.9
+# Changelog
+
+## 0.0.10
+- Changed cashless print title per law change
+
+## 0.0.9
 
 - Added: Payment method names in schema
 - Added: credentials#certificate_subject
 - Added: `Receipt#as_json` and `.from_hash`
 
-# 0.0.8
+## 0.0.8
 
-- Fixed: return `nil` when document is not ready yet 
+- Fixed: return `nil` when document is not ready yet
 
-# 0.0.7
+## 0.0.7
 
 - data schema update to 2.23.0 (15.06.2019)
 - Added: load credentials from zip file via rubyzip (no dependency, only accept already opened object)
 - Added: Credentials#from_hash now accepts `key_pass` argument
 
-# 0.0.6
+## 0.0.6
 
 - data schema changes:
   - title attribute used for field names instead of description
