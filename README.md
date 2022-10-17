@@ -2,7 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/orangedata.svg)](https://badge.fury.io/rb/orangedata)
 ![Gem downloads](https://img.shields.io/gem/dt/orangedata.svg)
-[![Build Status](https://travis-ci.org/Vasfed/orangedata.svg?branch=master)](https://travis-ci.org/Vasfed/orangedata)
+![Build Status](https://github.com/Vasfed/orangedata/actions/workflows/test.yml/badge.svg?branch=master)
 
 A ruby client for orangedata.ru service.
 Target service is pretty local to RU, so parts of readme will be in russian.
