@@ -4,6 +4,7 @@
 
 - Deprecated support for EOL ruby versions < 2.6 - gem may continue to work, but will not be tested against
 - Switched CI to github actions
+- ruby 3.0, 3.1 support
 
 ## 0.0.10
 - Changed cashless print title per law change
