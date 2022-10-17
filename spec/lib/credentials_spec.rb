@@ -66,7 +66,7 @@ RSpec.describe OrangeData::Credentials do
     end
 
     it "to_yaml" do
-      expect(described_class.from_hash(YAML.safe_load(subject.to_yaml, [Symbol]))).to eq(subject)
+      expect(described_class.from_hash(YAML.safe_load(subject.to_yaml, permitted_classes: [Symbol]))).to eq(subject)
     end
 
     it "to_json" do
