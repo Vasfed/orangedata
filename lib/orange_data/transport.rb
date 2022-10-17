@@ -24,11 +24,12 @@ module OrangeData
       def initialize(app, signature_key)
         @app = app
         @signature_key = signature_key
+        super(app)
       end
 
       def call(env)
         if env.body
-          signature = @signature_key.sign(OpenSSL::Digest::SHA256.new, env.body)
+          signature = @signature_key.sign(OpenSSL::Digest.new('SHA256'), env.body)
           env.request_headers['X-Signature'] = Base64.strict_encode64(signature)
         end
         @app.call(env)
@@ -105,8 +106,8 @@ module OrangeData
 
         @transport.send(
           get_method,
-          @data.respond_to?(:inn) && @data.inn || @data[:inn] || @data["inn"],
-          @data.respond_to?(:id) && @data.id || @data[:id] || @data["id"]
+          (@data.respond_to?(:inn) && @data.inn) || @data[:inn] || @data["inn"],
+          (@data.respond_to?(:id) && @data.id) || @data[:id] || @data["id"]
         )
       end
     end

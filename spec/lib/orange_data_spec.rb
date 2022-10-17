@@ -53,7 +53,7 @@ RSpec.describe 'OrangeData' do
             'Content-Type' => 'application/json',
             'User-Agent' => "OrangeDataRuby/#{OrangeData::VERSION}",
             'X-Signature' => Base64.strict_encode64(
-              OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
+              OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest.new('SHA256'), expected_body)
             )
           }
         ).to_return(status: 201, body: "", headers: {})
@@ -166,7 +166,7 @@ RSpec.describe 'OrangeData' do
             'Content-Type' => 'application/json',
             'User-Agent' => "OrangeDataRuby/#{OrangeData::VERSION}",
             'X-Signature' => Base64.strict_encode64(
-              OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
+              OrangeData::Credentials.default_test.signature_key.sign(OpenSSL::Digest.new('SHA256'), expected_body)
             )
           }
         ).to_return(status: 201, body: "", headers: {})

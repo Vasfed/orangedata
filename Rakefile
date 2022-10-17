@@ -28,11 +28,11 @@ namespace :swagger do
     new_definitions = swagger['definitions']
     old_definitions = OrangeData::PAYLOAD_SCHEMA['definitions']
 
-    if new_definitions.keys != old_definitions.keys
+    if new_definitions.keys == old_definitions.keys
+      puts "No top-level definitions changed"
+    else
       puts "New schema definitions: #{new_definitions.keys - old_definitions.keys}"
       puts "Removed schema definitions: #{old_definitions.keys - new_definitions.keys}"
-    else
-      puts "No top-level definitions changed"
     end
 
     new_definitions.each_pair do |key, new_schema|
@@ -40,13 +40,13 @@ namespace :swagger do
       next unless old_schema
 
       if old_schema['properties'].keys != new_schema['properties'].keys
-        if old_schema['properties'].keys.sort != new_schema['properties'].keys.sort
-          puts "\t#{key} added: #{new_schema['properties'].keys - old_schema['properties'].keys}"
-          puts "\t#{key} removed: #{old_schema['properties'].keys - new_schema['properties'].keys}"
-        else
+        if old_schema['properties'].keys.sort == new_schema['properties'].keys.sort
           puts "\t#{key} property order changed:"
           puts "\t\told:#{old_schema['properties'].keys}"
           puts "\t\tnew:#{new_schema['properties'].keys}"
+        else
+          puts "\t#{key} added: #{new_schema['properties'].keys - old_schema['properties'].keys}"
+          puts "\t#{key} removed: #{old_schema['properties'].keys - new_schema['properties'].keys}"
         end
         # else
         # TODO: deep compare

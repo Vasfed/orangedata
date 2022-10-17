@@ -114,7 +114,7 @@ RSpec.describe OrangeData::Receipt do
     it "has as_json" do
       json = subject.as_json.to_json
       expect(JSON::Validator.fully_validate_json(OrangeData::PAYLOAD_SCHEMA, json)).to eq []
-      expect(json).to eq expected_json      
+      expect(json).to eq expected_json
     end
 
     it "has from_hash" do

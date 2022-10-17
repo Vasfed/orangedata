@@ -19,8 +19,8 @@ RSpec.describe "Data Schema" do
     expect(
       JSON::Validator.fully_validate(
         extensions_metaschema,
-        "x-bitfield": { a: { bit: 1 } },
-        "x-enum": { a: { val: 1 } }
+        'x-bitfield': { a: { bit: 1 } },
+        'x-enum': { a: { val: 1 } }
       )
     ).not_to eq([])
   end

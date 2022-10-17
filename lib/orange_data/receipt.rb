@@ -30,7 +30,7 @@ module OrangeData
         group: hash[:group] || hash['group'],
         key_name: hash[:key] || hash['key'],
         content: hash[:content] || hash['content'],
-        callback_url: hash[:callbackUrl] || hash['callbackUrl'],
+        callback_url: hash[:callbackUrl] || hash['callbackUrl']
       )
     end
 
@@ -68,7 +68,7 @@ module OrangeData
 
   class ReceiptContent < PayloadContent
     def initialize(payload={})
-      @payload = payload || {}
+      super(payload || {})
       # TODO: import...
       # TODO: taxationSystem default in checkclose
       @check_close = CheckClose.new(@payload['checkClose'])
@@ -118,12 +118,12 @@ module OrangeData
     def set_agent_info(**options)
       # agent info may have some validations/transformations, so
       agent_info = AgentInfo.new.assign_attributes(options)
-      assign_attributes(agent_info.attributes.reject{|_k, v| v.nil? })
+      assign_attributes(agent_info.attributes.compact)
     end
 
     class Position < PayloadContent
       def initialize(payload={})
-        @payload = payload
+        super(payload || {})
         @supplier_info = SupplierInfo.new(@payload['supplierInfo']) if @payload['supplierInfo']
         @agent_info = AgentInfo.new(@payload['agentInfo']) if @payload['agentInfo']
       end
@@ -160,9 +160,8 @@ module OrangeData
 
     class CheckClose < PayloadContent
       def initialize(payload={})
-        payload ||= {}
-        @payload = payload
-        @payments = (payload['payments'] || []).map{|p| Payment.new(p) }
+        super(payload || {})
+        @payments = (@payload['payments'] || []).map{|p| Payment.new(p) }
       end
 
       def to_hash
@@ -192,7 +191,7 @@ module OrangeData
 
   class ReceiptResult < PayloadContent
     def initialize(payload)
-      @payload = payload
+      super(payload)
       @content = ReceiptContent.new(@payload["content"])
     end
 
@@ -204,6 +203,7 @@ module OrangeData
     end
 
     attr_reader :content
+
     GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CheckStatusViewModel[CheckContent]"])
 
     def qr_code_content
@@ -248,7 +248,7 @@ module OrangeData
 
   class CorrectionResult < PayloadContent
     def initialize(payload)
-      @payload = payload || {}
+      super(payload || {})
       @content = CorrectionContent.new(@payload["content"] || {})
     end
 
@@ -260,6 +260,7 @@ module OrangeData
     end
 
     attr_reader :content
+
     GeneratedAttributes.from_schema(self, PAYLOAD_SCHEMA["definitions"]["CheckStatusViewModel[CheckContent]"])
   end
 

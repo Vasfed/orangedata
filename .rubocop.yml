@@ -1,4 +1,6 @@
 AllCops:
+  NewCops: enable
+  SuggestExtensions: false
   # DefaultFormatter: fuubar
   # TargetRubyVersion: 2.1
   TargetRubyVersion: 2.3
@@ -6,8 +8,7 @@ AllCops:
     - 'spec/fixtures/**/*'
     - 'tmp/**/*'
 
-Gemspec/RequiredRubyVersion:
-  Enabled: false
+Gemspec/RequiredRubyVersion: { Enabled: false }
 
 Metrics/LineLength:
   Max: 130
@@ -26,8 +27,7 @@ Metrics/MethodLength:
   Max: 20
   Enabled: false
 
-Metrics/ClassLength:
-  Enabled: false
+Metrics/ClassLength: { Enabled: false }
 
 Metrics/AbcSize:
   # Max: 50
@@ -46,10 +46,9 @@ Style/StringLiterals:
   Enabled: false
   # EnforcedStyle: double_quotes
 
-Style/RedundantReturn:
-  Enabled: false
+Style/RedundantReturn: { Enabled: false }
 
-Layout/AlignArguments:
+Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
 
 Layout/SpaceBeforeBlockBraces:
@@ -58,11 +57,8 @@ Layout/SpaceBeforeBlockBraces:
 Layout/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
 
-Layout/SpaceAfterColon:
-  Enabled: false
-
-Layout/SpaceAroundOperators:
-  Enabled: false
+Layout/SpaceAfterColon: { Enabled: false }
+Layout/SpaceAroundOperators: { Enabled: false }
 
 Layout/EndAlignment:
   EnforcedStyleAlignWith: variable
@@ -85,14 +81,11 @@ Layout/DotPosition:
   # so that code can be copied to console
   EnforcedStyle: trailing
 
-Layout/IndentFirstHashElement:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
-Layout/EmptyLines:
-  Enabled: false
-
-Style/AsciiComments:
-  Enabled: false
+Layout/EmptyLines: { Enabled: false }
+Style/AsciiComments: { Enabled: false }
 
 Style/Documentation:
   # TODO
@@ -104,10 +97,9 @@ Style/BlockDelimiters:
     - 'spec/**/*'
 
 # trailing commas make simpler diffs
-Style/TrailingCommaInHashLiteral:
-  Enabled: false
-Style/TrailingCommaInArrayLiteral:
-  Enabled: false
+Style/TrailingCommaInHashLiteral: { Enabled: false }
+Style/TrailingCommaInArrayLiteral: { Enabled: false }
+Style/KeywordParametersOrder: { Enabled: false }
 
-Naming/AccessorMethodName:
-  Enabled: false
+Naming/AccessorMethodName: { Enabled: false }
+Naming/VariableNumber: { Enabled: false }

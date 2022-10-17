@@ -18,11 +18,11 @@ module OrangeData
           h = { 'Modulus' => :n, 'Exponent' => :e }
           h.merge!('P' => :p, 'Q' => :q, 'DP' => :dmp1, 'DQ' => :dmq1, 'InverseQ' => :iqmp, 'D' => :d) if private?
 
-          "<RSAKeyValue>#{h.map{|(k, v)| "<#{k}>#{h_params[v.to_s]}</#{k}>" }.join('')}</RSAKeyValue>"
+          "<RSAKeyValue>#{h.map{|(k, v)| "<#{k}>#{h_params[v.to_s]}</#{k}>" }.join}</RSAKeyValue>"
         end
 
         def to_hash
-          params.map{|k, v| v != 0 && [k, Base64.strict_encode64(v.to_s(2))] || nil }.compact.to_h
+          params.map{|k, v| (v != 0 && [k, Base64.strict_encode64(v.to_s(2))]) || nil }.compact.to_h
         end
       end
 
@@ -78,7 +78,7 @@ module OrangeData
               end
             else
               # ruby 2.3 and may be older
-              key.params.keys.each do |param|
+              key.params.each_key do |param|
                 if (v = hash[param] || hash[param.to_sym])
                   key.send(:"#{param}=", OpenSSL::BN.new(Base64.decode64(v), 2))
                 end
@@ -205,9 +205,9 @@ module OrangeData
     end
 
     def certificate_subject
-      if subj = certificate.subject.to_a.select{|ent| ent.first == 'O' }.first
-        subj[1].force_encoding('UTF-8')
-      end
+      return unless (subj = certificate.subject.to_a.select{|ent| ent.first == 'O' }.first)
+
+      subj[1].force_encoding('UTF-8')
     end
 
     DEFAULT_KEY_LENGTH = 2048
@@ -225,14 +225,14 @@ module OrangeData
 
     def self.read_certs_from_pack(path, signature_key_name:nil, cert_key_pass:nil, title:nil, signature_key:nil)
       path = File.expand_path(path)
-      client_cert = Dir.glob(path + '/*.{crt}').select{|f| File.file?(f.sub(/.crt\z/, '.key')) }
+      client_cert = Dir.glob("#{path}/*.{crt}").select{|f| File.file?(f.sub(/.crt\z/, '.key')) }
       raise 'Expect to find exactly one <num>.crt with corresponding <num>.key file' unless client_cert.size == 1
 
       client_cert = client_cert.first
 
       unless signature_key
         # private_key_test.xml || rsa_\d+_private_key.xml
-        xmls = Dir.glob(path + '/*.{xml}').select{|f| f =~ /private/ }
+        xmls = Dir.glob("#{path}/*.{xml}").grep(/private/)
         signature_key = if xmls.size == 1
           File.read(xmls.first)
         else
@@ -260,7 +260,7 @@ module OrangeData
 
       unless signature_key
         # private_key_test.xml || rsa_\d+_private_key.xml
-        xmls = rubyzip_object.glob('/*.{xml}').select{|f| f =~ /private/ }
+        xmls = rubyzip_object.glob('/*.{xml}').grep(/private/)
         signature_key = if xmls.size == 1
           xmls.first.get_input_stream.read
         else

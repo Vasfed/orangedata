@@ -18,7 +18,7 @@ RSpec.describe OrangeData::Transport do
         'Accept' => 'application/json',
         'Content-Type' => 'application/json',
         'X-Signature' => Base64.strict_encode64(
-          test_credentials.signature_key.sign(OpenSSL::Digest::SHA256.new, expected_body)
+          test_credentials.signature_key.sign(OpenSSL::Digest.new('SHA256'), expected_body)
         )
       }
     ).to_return(status: 200, body: '{"this":"is a response"}', headers: { 'Content-type' => 'application/json' })
