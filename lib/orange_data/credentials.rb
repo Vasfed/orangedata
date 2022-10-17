@@ -241,14 +241,14 @@ module OrangeData
         end
       end
 
-      from_hash(
+      from_hash({
         title: title || "Generated from #{File.basename(path)}",
         signature_key_name: signature_key_name || File.basename(client_cert).gsub(/\..*/, ''),
         certificate: File.read(client_cert),
         certificate_key: File.read(client_cert.sub(/.crt\z/, '.key')),
         certificate_key_pass: cert_key_pass,
         signature_key: signature_key
-      )
+      })
     end
 
     def self.read_certs_from_zip_pack(rubyzip_object, signature_key_name:nil, cert_key_pass:nil, title:nil, signature_key:nil)
@@ -269,14 +269,14 @@ module OrangeData
         end
       end
 
-      from_hash(
+      from_hash({
         title: title || "Generated from zip",
         signature_key_name: signature_key_name || File.basename(client_cert.name).gsub(/\..*/, ''),
         certificate: client_cert.get_input_stream.read,
         certificate_key: client_key.get_input_stream.read,
         certificate_key_pass: cert_key_pass,
         signature_key: signature_key
-      )
+      })
     end
 
     # публичная часть ключа подписи в формате пригодном для отдачи в ЛК
