@@ -271,15 +271,15 @@ definitions:
         x-tag-id: 1199
         type: integer
         x-enum:
-          vat_18:
+          vat_20:
             val: 1
-            title: ставка НДС 18%
+            title: ставка НДС 20%
           vat_10:
             val: 2
             title: ставка НДС 10%
-          vat_18_118:
+          vat_20_120:
             val: 3
-            title: ставка НДС расч. 18/118
+            title: ставка НДС расч. 20/120
           vat_10_110:
             val: 4
             title: ставка НДС расч. 10/110
@@ -742,10 +742,10 @@ definitions:
         type: number
 
       tax1Sum:
-        title: Сумма НДС чека по ставке 18%
+        title: Сумма НДС чека по ставке 20%
         x-comment: осторожно, номера в названии поля не соответствуют значениям в CheckPosition.tax
         x-tag-id: 1102
-        x-alias: vat_18
+        x-alias: vat_20
         type: number
         format: double
       tax2Sum:
@@ -768,9 +768,9 @@ definitions:
         type: number
       tax5Sum:
         format: double
-        title: Сумма НДС чека по расч. ставке 18/118
+        title: Сумма НДС чека по расч. ставке 20/120
         x-tag-id: 1106
-        x-alias: vat_18_118
+        x-alias: vat_20_120
         type: number
       tax6Sum:
         format: double
@@ -949,4 +949,3 @@ definitions:
         description: URL для отправки результатов обработки чека POST запросом
         type: [string, "null"]
         maxLength: 1024
-
