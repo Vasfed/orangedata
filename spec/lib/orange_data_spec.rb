@@ -85,6 +85,13 @@ RSpec.describe 'OrangeData' do
       expect(res).to be_a(OrangeData::ReceiptResult)
       # expect(res.content).to eq(receipt.content)
     end
+
+    it "old vat alias still supported" do
+      OrangeData::Receipt.income(inn:"1234567890"){|r|
+        r.add_position("Спички", price: 12.34) { |pos| pos.tax = :vat_18 }
+        r.add_position("Спички2", price: 12.34) { |pos| pos.tax = :vat_18_118 }
+      }
+    end
   end
 
   describe "Correction" do

@@ -271,12 +271,18 @@ definitions:
         x-tag-id: 1199
         type: integer
         x-enum:
+          vat_18:
+            val: 1
+            title: ставка НДС 18% (старая, теперь 20)
           vat_20:
             val: 1
             title: ставка НДС 20%
           vat_10:
             val: 2
             title: ставка НДС 10%
+          vat_18_118:
+            val: 3
+            title: ставка НДС расч. 18/118 (старая)
           vat_20_120:
             val: 3
             title: ставка НДС расч. 20/120
