@@ -37,7 +37,7 @@ gem 'orangedata'
 
 Описание полей смотреть в [официальной документации](https://github.com/orangedata-official/API), названия маппинга и некоторые коментарии есть [в схеме данных](lib/orange_data/schema_definitions.yml) (метасхема расширений [тут](spec/lib/extensions_metaschema.yml)).
 
-Для `enum`-полей есть маппинг, например `content.positions[0].tax` принимает значения: `:vat_18`, `:vat_10`, `:vat_18_118`, `:vat_10_110`, `:vat_0`, `:vat_not_charged`.
+Для `enum`-полей есть маппинг, например `content.positions[0].tax` принимает значения: `:vat_20`, `:vat_10`, `:vat_20_120`, `:vat_10_110`, `:vat_0`, `:vat_not_charged`.
 
 Простейший чек в тестовом окружении:
 
@@ -101,8 +101,8 @@ correction = OrangeData::Correction.income(inn:"123456789012", id:"12345678990")
     sum_cash: 1.23, sum_card: 2.34,
     sum_prepaid: 5.67, sum_credit: 4.56, sum_counterclaim: 3.45,
 
-    vat_18: 1.34, vat_10: 2.34, vat_0: 3.34,
-    vat_not_charged: 4.34, vat_18_118: 5.34, vat_10_110: 6.34,
+    vat_20: 1.34, vat_10: 2.34, vat_0: 3.34,
+    vat_not_charged: 4.34, vat_20_120: 5.34, vat_10_110: 6.34,
     taxation_system: :simplified,
 
     automat_number: "123456789",
