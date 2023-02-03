@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0
+
+- breaking: drop support for EOL versions of ruby (< 2.7)
+- possibly breaking: added vat20 to match current protocol
+
 ## 0.1.0
 
 - Deprecated support for EOL ruby versions < 2.6 - gem may continue to work, but will not be tested against

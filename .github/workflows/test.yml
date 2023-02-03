@@ -10,12 +10,12 @@ jobs:
       fail-fast: true
       matrix:
         ruby:
-          - 2.6
           - 2.7
           # # Due to https://github.com/actions/runner/issues/849, we have to use quotes for '3.0'
           - '3.0'
           - 3.1
-          - head
+          - 3.2
+          # - head
     steps:
       - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
