@@ -35,7 +35,7 @@ gem 'orangedata'
 
 ### Пробитие чека
 
-Описание полей смотреть в [официальной документации](https://github.com/orangedata-official/API), названия маппинга и некоторые коментарии есть [в схеме данных](lib/orange_data/schema_definitions.yml) (метасхема расширений [тут](spec/lib/extensions_metaschema.yml)).
+Описание полей смотреть в [официальной документации](https://github.com/orangedata-official/API), названия маппинга и некоторые комментарии есть [в схеме данных](lib/orange_data/schema_definitions.yml) (метасхема расширений [тут](spec/lib/extensions_metaschema.yml)).
 
 Для `enum`-полей есть маппинг, например `content.positions[0].tax` принимает значения: `:vat_20`, `:vat_10`, `:vat_20_120`, `:vat_10_110`, `:vat_0`, `:vat_not_charged`.
 
@@ -135,7 +135,7 @@ res = transport.get_correction(correction.inn, correction.id)
 
 Если все прошло гладко - теперь у вас есть файлик `my_production.yml` со всеми реквизитами доступа к продакшн-кассе. Обращаться с ним стоит как и с любой другой очень чувствительной информацией, например не стоит коммитить его (ну или как минимум, убрать из него поля `signature_key_pass` и `certificate_key_pass` и хранить отдельно)
 
-Дальше публичный ключ с предыдущего шага отправляется в ЛК, там его сохряняем, "подключаем интеграцию", и пользуемся:
+Дальше публичный ключ с предыдущего шага отправляется в ЛК, там его сохраняем, "подключаем интеграцию", и пользуемся:
 
 ```ruby
   transport = OrangeData::Transport.new(OrangeData::Transport::DEFAULT_PRODUCTION_API_URL, OrangeData::Credentials.from_hash(YAML.load_file('my_production.yml')))
