@@ -50,32 +50,39 @@ module OrangeData
         end
 
         def from_hash(hash)
-          OpenSSL::PKey::RSA.new.tap do |key|
-            # ruby 2.5+
-            # a bit ugly - simulating with_indifferent_access
-            if hash['n'] || hash[:n]
-              # public key only has n and e (without them - there's no key actually)
-              key.set_key(
-                OpenSSL::BN.new(Base64.decode64(hash['n'] || hash[:n]), 2),
-                OpenSSL::BN.new(Base64.decode64(hash['e'] || hash[:e]), 2),
-                (hash['d'] || hash[:d]) && OpenSSL::BN.new(Base64.decode64(hash['d'] || hash[:d]), 2)
-              )
-            end
-
-            if hash['p'] || hash[:p]
-              key.set_factors(
-                OpenSSL::BN.new(Base64.decode64(hash['p'] || hash[:p]), 2),
-                OpenSSL::BN.new(Base64.decode64(hash['q'] || hash[:q]), 2)
-              )
-              if hash['dmp1'] || hash[:dmp1]
-                key.set_crt_params(
-                  OpenSSL::BN.new(Base64.decode64(hash['dmp1'] || hash[:dmp1]), 2),
-                  OpenSSL::BN.new(Base64.decode64(hash['dmq1'] || hash[:dmq1]), 2),
-                  OpenSSL::BN.new(Base64.decode64(hash['iqmp'] || hash[:iqmp]), 2)
-                )
-              end
-            end
+          n, e, d, p, q, dmp1, dmq1, iqmp = %i[n e d p q dmp1 dmq1 iqmp].collect do |key|
+            value = hash[key.to_sym] || hash[key.to_s]
+            OpenSSL::BN.new Base64.decode64(value), 2 if value
           end
+
+          # Public key
+          if n && e
+            data_sequence = OpenSSL::ASN1::Sequence(
+              [
+                OpenSSL::ASN1::Integer(n),
+                OpenSSL::ASN1::Integer(e),
+              ]
+            )
+          end
+          if d && p && q && dmp1 && dmq1 && iqmp
+            data_sequence = OpenSSL::ASN1::Sequence(
+                [
+                  OpenSSL::ASN1::Integer(0),
+                  OpenSSL::ASN1::Integer(n),
+                  OpenSSL::ASN1::Integer(e),
+                  OpenSSL::ASN1::Integer(d),
+                  OpenSSL::ASN1::Integer(p),
+                  OpenSSL::ASN1::Integer(q),
+                  OpenSSL::ASN1::Integer(dmp1),
+                  OpenSSL::ASN1::Integer(dmq1),
+                  OpenSSL::ASN1::Integer(iqmp),
+                ]
+              )
+          end
+
+          asn1 = OpenSSL::ASN1::Sequence(data_sequence)
+
+          OpenSSL::PKey::RSA.new(asn1.to_der)
         end
 
         def load_from(val, key_pass=nil)
