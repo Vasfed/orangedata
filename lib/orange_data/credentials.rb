@@ -50,39 +50,22 @@ module OrangeData
         end
 
         def from_hash(hash)
-          n, e, d, p, q, dmp1, dmq1, iqmp = %i[n e d p q dmp1 dmq1 iqmp].collect do |key|
-            value = hash[key.to_sym] || hash[key.to_s]
-            OpenSSL::BN.new Base64.decode64(value), 2 if value
+          factors = %i[n e d p q dmp1 dmq1 iqmp] # order is important
+          hash = hash.transform_keys(&:to_sym).slice(*factors).compact.transform_values do |value|
+            OpenSSL::ASN1::Integer(OpenSSL::BN.new(Base64.decode64(value), 2))
           end
 
-          # Public key
-          if n && e
-            data_sequence = OpenSSL::ASN1::Sequence(
-              [
-                OpenSSL::ASN1::Integer(n),
-                OpenSSL::ASN1::Integer(e),
-              ]
-            )
-          end
-          if d && p && q && dmp1 && dmq1 && iqmp
-            data_sequence = OpenSSL::ASN1::Sequence(
-                [
-                  OpenSSL::ASN1::Integer(0),
-                  OpenSSL::ASN1::Integer(n),
-                  OpenSSL::ASN1::Integer(e),
-                  OpenSSL::ASN1::Integer(d),
-                  OpenSSL::ASN1::Integer(p),
-                  OpenSSL::ASN1::Integer(q),
-                  OpenSSL::ASN1::Integer(dmp1),
-                  OpenSSL::ASN1::Integer(dmq1),
-                  OpenSSL::ASN1::Integer(iqmp),
-                ]
-              )
+          raise 'Need at least n and e key params' unless hash.key?(:n) && hash.key?(:e)
+
+          data_sequence = if hash.keys == factors
+            # all factors present => have private key
+            OpenSSL::ASN1::Sequence([OpenSSL::ASN1::Integer(0)] + hash.values)
+          else
+            # only public key
+            OpenSSL::ASN1::Sequence(hash.slice(:n, :e).values)
           end
 
-          asn1 = OpenSSL::ASN1::Sequence(data_sequence)
-
-          OpenSSL::PKey::RSA.new(asn1.to_der)
+          OpenSSL::PKey::RSA.new(OpenSSL::ASN1::Sequence(data_sequence).to_der)
         end
 
         def load_from(val, key_pass=nil)
