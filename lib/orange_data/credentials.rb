@@ -50,41 +50,22 @@ module OrangeData
         end
 
         def from_hash(hash)
-          OpenSSL::PKey::RSA.new.tap do |key|
-            if key.respond_to?(:set_key)
-              # ruby 2.5+
-              # a bit ugly - simulating with_indifferent_access
-              if hash['n'] || hash[:n]
-                # public key only has n and e (without them - there's no key actually)
-                key.set_key(
-                  OpenSSL::BN.new(Base64.decode64(hash['n'] || hash[:n]), 2),
-                  OpenSSL::BN.new(Base64.decode64(hash['e'] || hash[:e]), 2),
-                  (hash['d'] || hash[:d]) && OpenSSL::BN.new(Base64.decode64(hash['d'] || hash[:d]), 2)
-                )
-              end
-
-              if hash['p'] || hash[:p]
-                key.set_factors(
-                  OpenSSL::BN.new(Base64.decode64(hash['p'] || hash[:p]), 2),
-                  OpenSSL::BN.new(Base64.decode64(hash['q'] || hash[:q]), 2)
-                )
-                if hash['dmp1'] || hash[:dmp1]
-                  key.set_crt_params(
-                    OpenSSL::BN.new(Base64.decode64(hash['dmp1'] || hash[:dmp1]), 2),
-                    OpenSSL::BN.new(Base64.decode64(hash['dmq1'] || hash[:dmq1]), 2),
-                    OpenSSL::BN.new(Base64.decode64(hash['iqmp'] || hash[:iqmp]), 2)
-                  )
-                end
-              end
-            else
-              # ruby 2.3 and may be older
-              key.params.each_key do |param|
-                if (v = hash[param] || hash[param.to_sym])
-                  key.send(:"#{param}=", OpenSSL::BN.new(Base64.decode64(v), 2))
-                end
-              end
-            end
+          factors = %i[n e d p q dmp1 dmq1 iqmp] # order is important
+          hash = hash.transform_keys(&:to_sym).slice(*factors).compact.transform_values do |value|
+            OpenSSL::ASN1::Integer(OpenSSL::BN.new(Base64.decode64(value), 2))
           end
+
+          raise 'Need at least n and e key params' unless hash.key?(:n) && hash.key?(:e)
+
+          data_sequence = if hash.keys == factors
+            # all factors present => have private key
+            OpenSSL::ASN1::Sequence([OpenSSL::ASN1::Integer(0)] + hash.values)
+          else
+            # only public key
+            OpenSSL::ASN1::Sequence(hash.slice(:n, :e).values)
+          end
+
+          OpenSSL::PKey::RSA.new(OpenSSL::ASN1::Sequence(data_sequence).to_der)
         end
 
         def load_from(val, key_pass=nil)
